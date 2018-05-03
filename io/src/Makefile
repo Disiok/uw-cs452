@@ -1,7 +1,7 @@
 #
 # Makefile for busy-wait IO library
 #
-XCC     = gcc
+XCC = gcc
 AS	= as
 AR	= ar
 CFLAGS  = -c -fPIC -Wall -I. -I../include -mcpu=arm920t -msoft-float
@@ -17,16 +17,25 @@ ASFLAGS	= -mcpu=arm920t -mapcs-32
 
 ARFLAGS = rcs
 
-all:  bwio.a 
+all:  bwio.a io.a
 
 bwio.s: bwio.c 
 	$(XCC) -S $(CFLAGS) bwio.c
 
+io.s: io.c 
+	$(XCC) -S $(CFLAGS) io.c
+
 bwio.o: bwio.s
 	$(AS) $(ASFLAGS) -o bwio.o bwio.s
 
+io.o: io.s
+	$(AS) $(ASFLAGS) -o io.o io.s
+
 bwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
+
+io.a: io.o
+	$(AR) $(ARFLAGS) $@ io.o
 
 
 clean:

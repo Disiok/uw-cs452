@@ -1,4 +1,4 @@
-#include <bwio.h>
+#include <io.h>
 #include <ts7200.h>
 
 
@@ -20,17 +20,17 @@ int sw( int switch_number, int switch_direction) {
 
 
 int main( int argc, char* argv[] ) {
-    bwsetfifo( COM2, OFF ); 
-    bwprintf( COM2, "Hello world.\n\r" ); 
+    setfifo( COM2, OFF ); 
+    printf( COM2, "Hello world.\n\r" ); 
     FOREVER {
-        bwprintf( COM2, "Looping.\n\r" ); 
-        char command = bwgetc( COM2 );
-        bwprintf( COM2, "Read char:" ); 
-        bwputx( COM2, command );
-        bwprintf( COM2, "\n\r" ); 
+        printf( COM2, "Looping.\n\r" ); 
+        char command = getc( COM2 );
+        printf( COM2, "Read char:" ); 
+        putx( COM2, command );
+        printf( COM2, "\n\r" ); 
 
         if (command == ENTER) {
-            bwprintf( COM2, "Breaking.\n\r" ); 
+            printf( COM2, "Breaking.\n\r" ); 
             break;
         }
     }
