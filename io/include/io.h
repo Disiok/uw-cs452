@@ -2,7 +2,10 @@
  * io.h
  */
 
+#ifndef _VA_LIST_
+#define _VA_LIST_
 typedef char *va_list;
+#endif 
 
 #define __va_argsiz(t)	\
 		(((sizeof(t) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))
@@ -20,25 +23,32 @@ typedef char *va_list;
 #define ON	1
 #define	OFF	0
 
+#define BUFFER_SIZE 32
+
 typedef struct {
-    char buffer[32];
-    int id;
+    char buffer[BUFFER_SIZE];
     int head;
     int tail;
-    int bufferSize;
+} RingBuffer;
+
+typedef struct {
+    int id;
+    RingBuffer *readBuffer;
+    RingBuffer *writeBuffer;
+    
 } BufferedChannel;
 
-void grow( BufferedChannel *channel);
+void grow( RingBuffer *channel, char ch);
 
-void shrink( BufferedChannel *channel);
+char shrink( RingBuffer *channel);
 
 int setfifo( BufferedChannel *channel, int state );
 
 int setspeed( BufferedChannel *channel, int speed );
 
-int put( BufferedChannel *channel );
+void put( BufferedChannel *channel );
 
-int get( BufferedChannel *channel );
+void get( BufferedChannel *channel );
 
 int putc( BufferedChannel *channel, char c );
 

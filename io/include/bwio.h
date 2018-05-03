@@ -2,7 +2,10 @@
  * bwio.h
  */
 
-typedef char *va_list;
+#ifndef _VA_LIST_                                                               
+#define _VA_LIST_                                                               
+typedef char *va_list;                                                          
+#endif      
 
 #define __va_argsiz(t)	\
 		(((sizeof(t) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))

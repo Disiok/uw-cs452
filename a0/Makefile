@@ -25,7 +25,7 @@ helloworld.o: helloworld.s
 	$(AS) $(ASFLAGS) -o helloworld.o helloworld.s
 
 helloworld.elf: helloworld.o
-	$(LD) $(LDFLAGS) -o $@ helloworld.o -lio -lgcc
+	$(LD) $(LDFLAGS) -o $@ helloworld.o -lbwio -lio -lgcc
 
 clean:
 	-rm -f helloworld.elf *.s *.o helloworld.map

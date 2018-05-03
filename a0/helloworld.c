@@ -1,10 +1,10 @@
+#include <bwio.h>
 #include <io.h>
 #include <ts7200.h>
 
-
 #define FOREVER for( ; ; )
 #define ENTER 0x0d
-
+#define DEBUG 1
 
 int tr( int train_number, int train_speed ) {
     return 0;
@@ -20,8 +20,25 @@ int sw( int switch_number, int switch_direction) {
 
 
 int main( int argc, char* argv[] ) {
+    if (DEBUG) {
+        bwprintf( COM2, "Hello world.\n\r" ); 
+    }
+
+    RingBuffer readBuffer = {"", 0, 0};
+    RingBuffer writeBuffer = {"", 0, 0};
+    BufferedChannel channel = {COM2, &readBuffer, &writeBuffer};
+
+    FOREVER {
+        putc(&channel, 'c');
+        // put(&channel);
+        if (DEBUG) {
+            bwprintf( COM2, channel.writeBuffer->buffer); 
+        }
+
+        
+    }
+    /*
     setfifo( COM2, OFF ); 
-    printf( COM2, "Hello world.\n\r" ); 
     FOREVER {
         printf( COM2, "Looping.\n\r" ); 
         char command = getc( COM2 );
@@ -34,6 +51,7 @@ int main( int argc, char* argv[] ) {
             break;
         }
     }
+    */
     return 0;
 }
 

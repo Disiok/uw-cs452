@@ -8,12 +8,16 @@
 #include <ts7200.h>
 #include <io.h>
 
-void grow( BufferedChannel *channel) {
-    channel->tail = (channel->tail + 1) % channel->bufferSize;
+void grow( RingBuffer *ringBuffer, char ch) {
+    ringBuffer->buffer[ringBuffer->tail] = ch;
+    ringBuffer->tail = (ringBuffer->tail + 1) % BUFFER_SIZE;
+    return;
 }
 
-void shrink( BufferedChannel *channel) {
-    channel->head = (channel->head + 1) % channel->bufferSize;
+char shrink( RingBuffer *ringBuffer) {
+    char ch = ringBuffer->buffer[ringBuffer->head];
+    ringBuffer->head = (ringBuffer->head + 1) % BUFFER_SIZE;
+    return ch;
 }
 
 /*
@@ -71,7 +75,7 @@ int setspeed( BufferedChannel *channel, int speed ) {
 	}
 }
 
-int put( BufferedChannel *channel ) {
+void put( BufferedChannel *channel ) {
 	int *flags, *data;
 	switch( channel->id ) {
 	case COM1:
@@ -83,18 +87,16 @@ int put( BufferedChannel *channel ) {
 		data = (int *)( UART2_BASE + UART_DATA_OFFSET );
 		break;
 	default:
-		return -1;
 		break;
 	}
-	while( ( *flags & TXFF_MASK ) ) ;
-	*data = channel->buffer[channel->head];
-    shrink(channel);
-	return 0;
+	if( *flags & TXFF_MASK ) {
+        *data = shrink(channel->writeBuffer);
+    }
+    return;
 }
 
 int putc( BufferedChannel *channel, char c ) {
-    channel->buffer[channel->tail] = c;
-    grow(channel);
+    grow(channel->writeBuffer, c);
     return 0;
 }
 
@@ -138,14 +140,12 @@ void putw( BufferedChannel *channel, int n, char fc, char *bf ) {
 }
 
 int getc( BufferedChannel *channel) {
-    unsigned char c = channel->buffer[channel->head];
-    shrink(channel);
-    return c;
+    char ch = shrink(channel->readBuffer);
+    return ch;
 }
 
-int get( BufferedChannel *channel ) {
+void get( BufferedChannel *channel ) {
 	int *flags, *data;
-	unsigned char c;
 
 	switch( channel->id ) {
 	case COM1:
@@ -157,14 +157,14 @@ int get( BufferedChannel *channel ) {
 		data = (int *)( UART2_BASE + UART_DATA_OFFSET );
 		break;
 	default:
-		return -1;
 		break;
 	}
-	while ( !( *flags & RXFF_MASK ) ) ;
-	c = *data;
-    channel->buffer[channel->tail] = *data;
-    grow(channel);
-	return c;
+
+	if( *flags & RXFF_MASK ) {
+        grow(channel->readBuffer, (char) *data);
+    }
+
+    return;
 }
 
 int a2d( char ch ) {

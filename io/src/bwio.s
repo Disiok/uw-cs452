@@ -217,9 +217,9 @@ bwputc:
 	.word	-2138243072
 	.size	bwputc, .-bwputc
 	.align	2
-	.global	c2x
-	.type	c2x, %function
-c2x:
+	.global	bwc2x
+	.type	bwc2x, %function
+bwc2x:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
 	mov	ip, sp
@@ -248,7 +248,7 @@ c2x:
 	mov	r0, r3
 	sub	sp, fp, #12
 	ldmfd	sp, {fp, sp, pc}
-	.size	c2x, .-c2x
+	.size	bwc2x, .-bwc2x
 	.align	2
 	.global	bwputx
 	.type	bwputx, %function
@@ -266,13 +266,13 @@ bwputx:
 	mov	r3, r3, lsr #4
 	and	r3, r3, #255
 	mov	r0, r3
-	bl	c2x(PLT)
+	bl	bwc2x(PLT)
 	mov	r3, r0
 	strb	r3, [fp, #-14]
 	ldrb	r3, [fp, #-24]	@ zero_extendqisi2
 	and	r3, r3, #15
 	mov	r0, r3
-	bl	c2x(PLT)
+	bl	bwc2x(PLT)
 	mov	r3, r0
 	strb	r3, [fp, #-13]
 	ldrb	r3, [fp, #-14]	@ zero_extendqisi2
