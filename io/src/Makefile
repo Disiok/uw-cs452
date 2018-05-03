@@ -17,7 +17,7 @@ ASFLAGS	= -mcpu=arm920t -mapcs-32
 
 ARFLAGS = rcs
 
-all:  bwio.a io.a
+all:  ../lib/libbwio.a ../lib/libio.a
 
 bwio.s: bwio.c 
 	$(XCC) -S $(CFLAGS) bwio.c
@@ -31,10 +31,10 @@ bwio.o: bwio.s
 io.o: io.s
 	$(AS) $(ASFLAGS) -o io.o io.s
 
-bwio.a: bwio.o
+../lib/libbwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
 
-io.a: io.o
+../lib/libio.a: io.o
 	$(AR) $(ARFLAGS) $@ io.o
 
 

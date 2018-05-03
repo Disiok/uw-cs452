@@ -8,6 +8,14 @@
 #include <ts7200.h>
 #include <io.h>
 
+void grow( BufferedChannel *channel) {
+    channel->tail = (channel->tail + 1) % channel->bufferSize;
+}
+
+void shrink( BufferedChannel *channel) {
+    channel->head = (channel->head + 1) % channel->bufferSize;
+}
+
 /*
  * The UARTs are initialized by RedBoot to the following state
  * 	115,200 bps
@@ -15,9 +23,9 @@
  * 	no parity
  * 	fifos enabled
  */
-int setfifo( int channel, int state ) {
+int setfifo( BufferedChannel *channel, int state ) {
 	int *line, buf;
-	switch( channel ) {
+	switch( channel->id ) {
 	case COM1:
 		line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
 	        break;
@@ -34,9 +42,9 @@ int setfifo( int channel, int state ) {
 	return 0;
 }
 
-int setspeed( int channel, int speed ) {
+int setspeed( BufferedChannel *channel, int speed ) {
 	int *high, *low;
-	switch( channel ) {
+	switch( channel->id ) {
 	case COM1:
 		high = (int *)( UART1_BASE + UART_LCRM_OFFSET );
 		low = (int *)( UART1_BASE + UART_LCRL_OFFSET );
@@ -63,9 +71,9 @@ int setspeed( int channel, int speed ) {
 	}
 }
 
-int putc( int channel, char c ) {
+int put( BufferedChannel *channel ) {
 	int *flags, *data;
-	switch( channel ) {
+	switch( channel->id ) {
 	case COM1:
 		flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );
 		data = (int *)( UART1_BASE + UART_DATA_OFFSET );
@@ -79,8 +87,15 @@ int putc( int channel, char c ) {
 		break;
 	}
 	while( ( *flags & TXFF_MASK ) ) ;
-	*data = c;
+	*data = channel->buffer[channel->head];
+    shrink(channel);
 	return 0;
+}
+
+int putc( BufferedChannel *channel, char c ) {
+    channel->buffer[channel->tail] = c;
+    grow(channel);
+    return 0;
 }
 
 char c2x( char ch ) {
@@ -88,7 +103,7 @@ char c2x( char ch ) {
 	return 'a' + ch - 10;
 }
 
-int putx( int channel, char c ) {
+int putx( BufferedChannel *channel, char c ) {
 	char chh, chl;
 
 	chh = c2x( c / 16 );
@@ -97,7 +112,7 @@ int putx( int channel, char c ) {
 	return putc( channel, chl );
 }
 
-int putr( int channel, unsigned int reg ) {
+int putr( BufferedChannel *channel, unsigned int reg ) {
 	int byte;
 	char *ch = (char *) &reg;
 
@@ -105,7 +120,7 @@ int putr( int channel, unsigned int reg ) {
 	return putc( channel, ' ' );
 }
 
-int putstr( int channel, char *str ) {
+int putstr( BufferedChannel *channel, char *str ) {
 	while( *str ) {
 		if( putc( channel, *str ) < 0 ) return -1;
 		str++;
@@ -113,7 +128,7 @@ int putstr( int channel, char *str ) {
 	return 0;
 }
 
-void putw( int channel, int n, char fc, char *bf ) {
+void putw( BufferedChannel *channel, int n, char fc, char *bf ) {
 	char ch;
 	char *p = bf;
 
@@ -122,11 +137,17 @@ void putw( int channel, int n, char fc, char *bf ) {
 	while( ( ch = *bf++ ) ) putc( channel, ch );
 }
 
-int getc( int channel ) {
+int getc( BufferedChannel *channel) {
+    unsigned char c = channel->buffer[channel->head];
+    shrink(channel);
+    return c;
+}
+
+int get( BufferedChannel *channel ) {
 	int *flags, *data;
 	unsigned char c;
 
-	switch( channel ) {
+	switch( channel->id ) {
 	case COM1:
 		flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );
 		data = (int *)( UART1_BASE + UART_DATA_OFFSET );
@@ -141,6 +162,8 @@ int getc( int channel ) {
 	}
 	while ( !( *flags & RXFF_MASK ) ) ;
 	c = *data;
+    channel->buffer[channel->tail] = *data;
+    grow(channel);
 	return c;
 }
 
@@ -191,7 +214,7 @@ void i2a( int num, char *bf ) {
 	ui2a( num, 10, bf );
 }
 
-void format ( int channel, char *fmt, va_list va ) {
+void format ( BufferedChannel *channel, char *fmt, va_list va ) {
 	char bf[12];
 	char ch, lz;
 	int w;
@@ -247,7 +270,7 @@ void format ( int channel, char *fmt, va_list va ) {
 	}
 }
 
-void printf( int channel, char *fmt, ... ) {
+void printf( BufferedChannel *channel, char *fmt, ... ) {
         va_list va;
 
         va_start(va,fmt);

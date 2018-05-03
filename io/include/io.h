@@ -20,20 +20,36 @@ typedef char *va_list;
 #define ON	1
 #define	OFF	0
 
-int setfifo( int channel, int state );
+typedef struct {
+    char buffer[32];
+    int id;
+    int head;
+    int tail;
+    int bufferSize;
+} BufferedChannel;
 
-int setspeed( int channel, int speed );
+void grow( BufferedChannel *channel);
 
-int putc( int channel, char c );
+void shrink( BufferedChannel *channel);
 
-int getc( int channel );
+int setfifo( BufferedChannel *channel, int state );
 
-int putx( int channel, char c );
+int setspeed( BufferedChannel *channel, int speed );
 
-int putstr( int channel, char *str );
+int put( BufferedChannel *channel );
 
-int putr( int channel, unsigned int reg );
+int get( BufferedChannel *channel );
 
-void putw( int channel, int n, char fc, char *bf );
+int putc( BufferedChannel *channel, char c );
 
-void printf( int channel, char *format, ... );
+int getc( BufferedChannel *channel );
+
+int putx( BufferedChannel *channel, char c );
+
+int putstr( BufferedChannel *channel, char *str );
+
+int putr( BufferedChannel *channel, unsigned int reg );
+
+void putw( BufferedChannel *channel, int n, char fc, char *bf );
+
+void printf( BufferedChannel *channel, char *format, ... );
