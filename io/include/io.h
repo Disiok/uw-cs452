@@ -26,9 +26,10 @@ typedef char *va_list;
 #define BUFFER_SIZE 32
 
 typedef struct {
-    char buffer[BUFFER_SIZE];
     int head;
     int tail;
+    int size;
+    char buffer[BUFFER_SIZE];
 } RingBuffer;
 
 typedef struct {
@@ -37,6 +38,8 @@ typedef struct {
     RingBuffer *writeBuffer;
     
 } BufferedChannel;
+
+void init( RingBuffer *channel);
 
 void grow( RingBuffer *channel, char ch);
 
