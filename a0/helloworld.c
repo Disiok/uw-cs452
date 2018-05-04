@@ -33,6 +33,22 @@ int main( int argc, char* argv[] ) {
         printf( &channel, "Hello world.\n\r\0" ); 
     }
 
+    // get clock registers
+    int *clock_load_addr = (int *) (TIMER3_BASE + LDR_OFFSET);
+    int *clock_value_addr = (int *) (TIMER3_BASE + VAL_OFFSET);
+    int *clock_control_addr = (int *) (TIMER3_BASE + CRTL_OFFSET);
+
+    // load starting value into load register for clock
+    *clock_load_addr = 2;
+
+    // flip enable bit to start clock, set to periodic mode
+    int buf = *clock_control_addr;
+    buf = buf | ENABLE_MASK | MODE_MASK & ~CLKSEL_MASK;
+    *clock_control_addr = buf;
+
+    int prev = 2;
+    int ticks = 0;
+
     FOREVER {
         // Write from write buffer to URT
         if (!is_empty(&writeBuffer)) {
@@ -47,6 +63,14 @@ int main( int argc, char* argv[] ) {
             char ch = getc(&channel);
             putc(&channel, ch);
         }
+
+        // update tick counter
+        int clock_value =  *clock_value_addr;
+        if (clock_value > prev) {
+            ticks++;
+            printf(&channel, "%d\r\n", ticks);
+        }
+        prev = clock_value;
     }
     bwputstr( COM2, "Done.\r\n"); 
     return 0;
