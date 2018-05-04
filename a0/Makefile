@@ -16,7 +16,7 @@ ASFLAGS	= -mcpu=arm920t -mapcs-32
 
 LDFLAGS = -init main -Map helloworld.map -N  -T orex.ld -L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2 -L../io/lib
 
-all:  helloworld.s helloworld.elf
+all:  time.s helloworld.s helloworld.elf
 
 helloworld.s: helloworld.c helloworld.h
 	$(XCC) -S $(CFLAGS) helloworld.c
@@ -24,8 +24,14 @@ helloworld.s: helloworld.c helloworld.h
 helloworld.o: helloworld.s
 	$(AS) $(ASFLAGS) -o helloworld.o helloworld.s
 
-helloworld.elf: helloworld.o
-	$(LD) $(LDFLAGS) -o $@ helloworld.o -lbwio -lio -lgcc
+time.s: time.c time.h
+	$(XCC) -S $(CFLAGS) time.c
+
+time.o: time.s
+	$(AS) $(ASFLAGS) -o time.o time.s
+
+helloworld.elf: helloworld.o time.o
+	$(LD) $(LDFLAGS) -o $@ helloworld.o time.o -lbwio -lio -lgcc
 
 clean:
 	-rm -f helloworld.elf *.s *.o helloworld.map

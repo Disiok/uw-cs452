@@ -1,4 +1,5 @@
 #include <bwio.h>
+#include "time.h"
 #include <io.h>
 #include <ts7200.h>
 
@@ -22,36 +23,31 @@ int sw( int switch_number, int switch_direction) {
 
 int main( int argc, char* argv[] ) {
     RingBuffer readBuffer;
-    init(&readBuffer);
+    rb_init(&readBuffer);
+
     RingBuffer writeBuffer;
-    init(&writeBuffer);
+    rb_init(&writeBuffer);
+
     BufferedChannel channel = {COM2, &readBuffer, &writeBuffer};
+
+    Clock clock;
+    cl_init(&clock);
 
     setfifo(&channel, OFF);
 
     DEBUG {
-        printf( &channel, "Hello world.\n\r\0" ); 
+        bwprintf( COM2, "Hello world.\n\r\0" ); 
     }
 
-    // get clock registers
-    int *clock_load_addr = (int *) (TIMER3_BASE + LDR_OFFSET);
-    int *clock_value_addr = (int *) (TIMER3_BASE + VAL_OFFSET);
-    int *clock_control_addr = (int *) (TIMER3_BASE + CRTL_OFFSET);
-
-    // load starting value into load register for clock
-    *clock_load_addr = 2;
-
-    // flip enable bit to start clock, set to periodic mode
-    int buf = *clock_control_addr;
-    buf = buf | ENABLE_MASK | MODE_MASK & ~CLKSEL_MASK;
-    *clock_control_addr = buf;
-
-    int prev = 2;
-    int ticks = 0;
+    int iter = 0;
+    int prev_clock_value = 2;
+    int loop_time_ms = 0;
 
     FOREVER {
+        long start_time_ms = cl_get_time_ms(&clock);
+
         // Write from write buffer to URT
-        if (!is_empty(&writeBuffer)) {
+        if (!rb_is_empty(&writeBuffer)) {
             put(&channel);
         }
 
@@ -59,20 +55,28 @@ int main( int argc, char* argv[] ) {
         get(&channel);
 
         // Echo input from terminal
-        if (!is_empty(&readBuffer)) {
+        if (!rb_is_empty(&readBuffer)) {
             char ch = getc(&channel);
             putc(&channel, ch);
         }
 
-        // update tick counter
-        int clock_value =  *clock_value_addr;
-        if (clock_value > prev) {
-            ticks++;
-            printf(&channel, "%d\r\n", ticks);
+        // Update clock
+        cl_tick(&clock);
+        
+
+        long end_time_ms = cl_get_time_ms(&clock);
+        loop_time_ms += end_time_ms - start_time_ms;
+        if (iter % 100 == 0) {
+            printf(&channel, "%d ms to complete 100 loops.\r\n",  loop_time_ms);
+            loop_time_ms = 0;
         }
-        prev = clock_value;
+        
+        iter ++;
     }
-    bwputstr( COM2, "Done.\r\n"); 
+    
+    DEBUG {
+        bwputstr( COM2, "Done.\r\n"); 
+    }
     return 0;
 }
 

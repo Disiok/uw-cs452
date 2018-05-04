@@ -8,28 +8,28 @@
 #include <ts7200.h>
 #include <io.h>
 
-void init(RingBuffer *ringBuffer) {
+void rb_init(RingBuffer *ringBuffer) {
     ringBuffer->head = 0;
     ringBuffer->tail = 0;
     ringBuffer->size = 0;
     return;
 }
 
-void grow(RingBuffer *ringBuffer, char ch) {
+void rb_grow(RingBuffer *ringBuffer, char ch) {
     ringBuffer->buffer[ringBuffer->tail] = ch;
     ringBuffer->tail = (ringBuffer->tail + 1) % BUFFER_SIZE;
     ringBuffer->size ++;
     return;
 }
 
-char shrink(RingBuffer *ringBuffer) {
+char rb_shrink(RingBuffer *ringBuffer) {
     char ch = ringBuffer->buffer[ringBuffer->head];
     ringBuffer->head = (ringBuffer->head + 1) % BUFFER_SIZE;
     ringBuffer->size --;
     return ch;
 }
 
-int is_empty(RingBuffer *ringBuffer) {
+int rb_is_empty(RingBuffer *ringBuffer) {
     return ringBuffer->size == 0;
 
 }
@@ -104,13 +104,13 @@ void put( BufferedChannel *channel ) {
 		break;
 	}
 	if( !(*flags & TXFF_MASK) ) {
-        *data = shrink(channel->writeBuffer);
+        *data = rb_shrink(channel->writeBuffer);
     }
     return;
 }
 
 int putc( BufferedChannel *channel, char c ) {
-    grow(channel->writeBuffer, c);
+    rb_grow(channel->writeBuffer, c);
     return 0;
 }
 
@@ -154,7 +154,7 @@ void putw( BufferedChannel *channel, int n, char fc, char *bf ) {
 }
 
 int getc( BufferedChannel *channel) {
-    char ch = shrink(channel->readBuffer);
+    char ch = rb_shrink(channel->readBuffer);
     return ch;
 }
 
@@ -175,7 +175,7 @@ void get( BufferedChannel *channel ) {
 	}
 
 	if( (*flags & RXFF_MASK) ) {
-        grow(channel->readBuffer, (char) *data);
+        rb_grow(channel->readBuffer, (char) *data);
     }
 
     return;

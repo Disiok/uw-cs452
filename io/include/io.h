@@ -39,11 +39,11 @@ typedef struct {
     
 } BufferedChannel;
 
-void init( RingBuffer *channel);
+void rb_init( RingBuffer *channel);
 
-void grow( RingBuffer *channel, char ch);
+void rb_grow( RingBuffer *channel, char ch);
 
-char shrink( RingBuffer *channel);
+char rb_shrink( RingBuffer *channel);
 
 int setfifo( BufferedChannel *channel, int state );
 
