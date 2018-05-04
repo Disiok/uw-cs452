@@ -2,3 +2,5 @@
 *.s
 *.elf
 *.map
+io/build/
+io/lib/

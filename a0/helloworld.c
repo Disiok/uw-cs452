@@ -28,30 +28,15 @@ int main( int argc, char* argv[] ) {
     RingBuffer writeBuffer = {"", 0, 0};
     BufferedChannel channel = {COM2, &readBuffer, &writeBuffer};
 
-    FOREVER {
-        putc(&channel, 'c');
-        // put(&channel);
-        if (DEBUG) {
-            bwprintf( COM2, channel.writeBuffer->buffer); 
-        }
-
-        
+    putc(&channel, 'c');
+    if (DEBUG) {
+        bwprintf( COM2, channel.writeBuffer->buffer); 
     }
-    /*
-    setfifo( COM2, OFF ); 
-    FOREVER {
-        printf( COM2, "Looping.\n\r" ); 
-        char command = getc( COM2 );
-        printf( COM2, "Read char:" ); 
-        putx( COM2, command );
-        printf( COM2, "\n\r" ); 
 
-        if (command == ENTER) {
-            printf( COM2, "Breaking.\n\r" ); 
-            break;
-        }
+    FOREVER {
+        put(&channel);
+        get(&channel);
     }
-    */
     return 0;
 }
 
