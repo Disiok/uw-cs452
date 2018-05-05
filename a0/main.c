@@ -23,43 +23,39 @@ int sw( int switch_number, int switch_direction) {
 
 
 int main( int argc, char* argv[] ) {
-    BufferedChannel channel;
-    bc_init(&channel, COM2);
+    // Objects
+    SmartTerminal st;
+    st_init(&st, COM2);
 
     Clock clock;
     cl_init(&clock);
 
     TerminalController controller;
-    tc_init(&controller);
+    tc_init(&controller, &st);
 
     DEBUG {
         bwprintf( COM2, "Hello world.\n\r\0" ); 
     }
 
+    st_clear_screen(&st);
+
     int iter = 0;
-    int prev_clock_value = 2;
     int loop_time_ms = 0;
 
     FOREVER {
         long start_time_ms = cl_get_time_ms(&clock);
 
-        // Write from write buffer to URT
-        if (!rb_is_empty(&(channel.writeBuffer))) {
-            put(&channel);
-        }
-
-        // Read from URT to read buffer
-        get(&channel);
+        st_poll(&st);
 
         // Update clock
         cl_tick(&clock);
 
         // Handle command
-        // tc_process_terminal_input(&controller, &channel);
+        tc_process_terminal_input(&controller);
 
         // Handle time
         if (iter % 1000 == 0) {
-            tc_process_time(&controller, &clock, &channel);
+            tc_process_time(&controller, &clock);
         }
         
         /*

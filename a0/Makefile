@@ -14,15 +14,15 @@ CFLAGS  = -c -fPIC -Wall -I. -I../io/include -mcpu=arm920t -msoft-float
 ASFLAGS	= -mcpu=arm920t -mapcs-32
 # -mapcs: always generate a complete stack frame
 
-LDFLAGS = -init main -Map helloworld.map -N  -T orex.ld -L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2 -L../io/lib
+LDFLAGS = -init main -Map main.map -N  -T orex.ld -L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2 -L../io/lib
 
-all:  time.s helloworld.s helloworld.elf
+all:  terminal.s time.s main.s main.elf
 
-helloworld.s: helloworld.c helloworld.h
-	$(XCC) -S $(CFLAGS) helloworld.c
+main.s: main.c
+	$(XCC) -S $(CFLAGS) main.c
 
-helloworld.o: helloworld.s
-	$(AS) $(ASFLAGS) -o helloworld.o helloworld.s
+main.o: main.s
+	$(AS) $(ASFLAGS) -o main.o main.s
 
 time.s: time.c time.h
 	$(XCC) -S $(CFLAGS) time.c
@@ -36,8 +36,8 @@ terminal.s: terminal.c terminal.h
 terminal.o: terminal.s
 	$(AS) $(ASFLAGS) -o terminal.o terminal.s
 
-helloworld.elf: helloworld.o time.o terminal.o
-	$(LD) $(LDFLAGS) -o $@ helloworld.o time.o terminal.o -lbwio -lio -lgcc
+main.elf: main.o time.o terminal.o
+	$(LD) $(LDFLAGS) -o $@ main.o time.o terminal.o -lbwio -lio -lgcc
 
 clean:
-	-rm -f helloworld.elf *.s *.o helloworld.map
+	-rm -f main.elf *.s *.o main.map

@@ -46,7 +46,6 @@ typedef struct {
     int id;
     RingBuffer readBuffer;
     RingBuffer writeBuffer;
-    
 } BufferedChannel;
 
 void bc_init( BufferedChannel *channel, int id);
@@ -59,11 +58,19 @@ void bc_init( BufferedChannel *channel, int id);
  * 1. Basic functions dealing with cursors
  */
 
-void st_save(BufferedChannel *channel);
-void st_restore(BufferedChannel *channel);
-void st_move(BufferedChannel *channel, int vertical, int horizontal);
-void st_move_top_left(BufferedChannel *channel);
-void st_clear_line(BufferedChannel *channel);
+typedef struct {
+    BufferedChannel channel;
+    RingBuffer commandBuffer;
+} SmartTerminal;
+
+void st_init(SmartTerminal *st, int id);
+void st_poll(SmartTerminal *st);
+void st_save(SmartTerminal *st);
+void st_restore(SmartTerminal *st);
+void st_move(SmartTerminal *st, int vertical, int horizontal);
+void st_move_top_left(SmartTerminal *st);
+void st_clear_line(SmartTerminal *st);
+void st_clear_screen(SmartTerminal *st);
 
 int setfifo( BufferedChannel *channel, int state );
 

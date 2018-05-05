@@ -16,15 +16,15 @@
  * 1. Location of user interface elements
  */
 typedef struct {
-    RingBuffer commandBuffer;
+    SmartTerminal *st;
 } TerminalController;
 
-void tc_init(TerminalController *controller);
+void tc_init(TerminalController *controller, SmartTerminal *st);
 
-int tc_process_terminal_input(TerminalController *controller, BufferedChannel *channel);
-int tc_process_time(TerminalController *controller, Clock *clock, BufferedChannel *channel);
+int tc_process_terminal_input(TerminalController *controller);
+int tc_process_time(TerminalController *controller, Clock *clock);
 
 // Following functions for formatting and positioning
-int tc_update_time(TerminalController *controller, long time_ms, BufferedChannel *channel);
-int tc_update_sensor(TerminalController *controller, BufferedChannel *channel);
+int tc_update_time(TerminalController *controller, long time_ms);
+int tc_update_sensor(TerminalController *controller);
 

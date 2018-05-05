@@ -56,24 +56,43 @@ void bc_init(BufferedChannel *channel, int id) {
  * Smart Terminal
  */
 
-void st_save(BufferedChannel *channel) {
-    putstr(channel, "\x1B""7");
+void st_init(SmartTerminal *st, int id) {
+    bc_init(&(st->channel), id);
+    rb_init(&(st->commandBuffer));
 }
 
-void st_restore(BufferedChannel *channel) {
-    putstr(channel, "\x1B""8");
+void st_poll(SmartTerminal *st) {
+    // Write from write buffer to URT
+    if (!rb_is_empty(&(st->channel.writeBuffer))) {
+        put(&(st->channel));
+    }
+
+    // Read from URT to read buffer
+    get(&(st->channel));
 }
 
-void st_move_top_left(BufferedChannel *channel) {
-    putstr(channel, "\x1B[H");
+void st_save(SmartTerminal *st) {
+    putstr(&(st->channel), "\x1B""7");
 }
 
-void st_move(BufferedChannel *channel, int vertical, int horizontal) {
-    printf(channel, "\x1B[%d;%dH", vertical, horizontal);
+void st_restore(SmartTerminal *st) {
+    putstr(&(st->channel), "\x1B""8");
 }
 
-void st_clear_line(BufferedChannel *channel) {
-    putstr(channel, "\x1B[2K");
+void st_move_top_left(SmartTerminal *st) {
+    putstr(&(st->channel), "\x1B[H");
+}
+
+void st_move(SmartTerminal *st, int vertical, int horizontal) {
+    printf(&(st->channel), "\x1B[%d;%dH", vertical, horizontal);
+}
+
+void st_clear_line(SmartTerminal *st) {
+    putstr(&(st->channel), "\x1B[2K");
+}
+
+void st_clear_screen(SmartTerminal *st) {
+    putstr(&(st->channel), "\x1B[2J");
 }
 
 /*
