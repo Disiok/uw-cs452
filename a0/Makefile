@@ -30,8 +30,14 @@ time.s: time.c time.h
 time.o: time.s
 	$(AS) $(ASFLAGS) -o time.o time.s
 
-helloworld.elf: helloworld.o time.o
-	$(LD) $(LDFLAGS) -o $@ helloworld.o time.o -lbwio -lio -lgcc
+terminal.s: terminal.c terminal.h
+	$(XCC) -S $(CFLAGS) terminal.c
+
+terminal.o: terminal.s
+	$(AS) $(ASFLAGS) -o terminal.o terminal.s
+
+helloworld.elf: helloworld.o time.o terminal.o
+	$(LD) $(LDFLAGS) -o $@ helloworld.o time.o terminal.o -lbwio -lio -lgcc
 
 clean:
 	-rm -f helloworld.elf *.s *.o helloworld.map

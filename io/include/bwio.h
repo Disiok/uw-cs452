@@ -2,6 +2,8 @@
  * bwio.h
  */
 
+#pragma once
+
 #ifndef _VA_LIST_                                                               
 #define _VA_LIST_                                                               
 typedef char *va_list;                                                          

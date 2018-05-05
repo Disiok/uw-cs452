@@ -2,6 +2,7 @@
  * time.h
  */
 
+#pragma once
 
 typedef struct {
     long time_ms;

@@ -2,6 +2,8 @@
  * io.h
  */
 
+#pragma once 
+
 #ifndef _VA_LIST_
 #define _VA_LIST_
 typedef char *va_list;
@@ -32,18 +34,36 @@ typedef struct {
     char buffer[BUFFER_SIZE];
 } RingBuffer;
 
+void rb_init(RingBuffer *channel);
+
+void rb_grow(RingBuffer *channel, char ch);
+
+char rb_shrink(RingBuffer *channel);
+
+int rb_is_empty(RingBuffer *channel);
+
 typedef struct {
     int id;
-    RingBuffer *readBuffer;
-    RingBuffer *writeBuffer;
+    RingBuffer readBuffer;
+    RingBuffer writeBuffer;
     
 } BufferedChannel;
 
-void rb_init( RingBuffer *channel);
+void bc_init( BufferedChannel *channel, int id);
 
-void rb_grow( RingBuffer *channel, char ch);
 
-char rb_shrink( RingBuffer *channel);
+/*
+ * Smart Terminal: wrapper on gtk for moving cursors around
+ *
+ * This contains logic for:
+ * 1. Basic functions dealing with cursors
+ */
+
+void st_save(BufferedChannel *channel);
+void st_restore(BufferedChannel *channel);
+void st_move(BufferedChannel *channel, int vertical, int horizontal);
+void st_move_top_left(BufferedChannel *channel);
+void st_clear_line(BufferedChannel *channel);
 
 int setfifo( BufferedChannel *channel, int state );
 

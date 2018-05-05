@@ -8,6 +8,10 @@
 #include <ts7200.h>
 #include <io.h>
 
+/* 
+ * Ring Buffer
+ */
+
 void rb_init(RingBuffer *ringBuffer) {
     ringBuffer->head = 0;
     ringBuffer->tail = 0;
@@ -32,6 +36,44 @@ char rb_shrink(RingBuffer *ringBuffer) {
 int rb_is_empty(RingBuffer *ringBuffer) {
     return ringBuffer->size == 0;
 
+}
+
+/* 
+ * Buffered Channel
+ */
+
+void bc_init(BufferedChannel *channel, int id) {
+    channel->id = id;
+    rb_init(&channel->readBuffer);
+    rb_init(&channel->writeBuffer);
+
+    // Default settings
+    setfifo(channel, OFF);
+    return;
+}
+
+/*
+ * Smart Terminal
+ */
+
+void st_save(BufferedChannel *channel) {
+    putstr(channel, "\x1B""7");
+}
+
+void st_restore(BufferedChannel *channel) {
+    putstr(channel, "\x1B""8");
+}
+
+void st_move_top_left(BufferedChannel *channel) {
+    putstr(channel, "\x1B[H");
+}
+
+void st_move(BufferedChannel *channel, int vertical, int horizontal) {
+    printf(channel, "\x1B[%d;%dH", vertical, horizontal);
+}
+
+void st_clear_line(BufferedChannel *channel) {
+    putstr(channel, "\x1B[2K");
 }
 
 /*
@@ -104,13 +146,13 @@ void put( BufferedChannel *channel ) {
 		break;
 	}
 	if( !(*flags & TXFF_MASK) ) {
-        *data = rb_shrink(channel->writeBuffer);
+        *data = rb_shrink(&(channel->writeBuffer));
     }
     return;
 }
 
 int putc( BufferedChannel *channel, char c ) {
-    rb_grow(channel->writeBuffer, c);
+    rb_grow(&(channel->writeBuffer), c);
     return 0;
 }
 
@@ -154,7 +196,7 @@ void putw( BufferedChannel *channel, int n, char fc, char *bf ) {
 }
 
 int getc( BufferedChannel *channel) {
-    char ch = rb_shrink(channel->readBuffer);
+    char ch = rb_shrink(&(channel->readBuffer));
     return ch;
 }
 
@@ -175,7 +217,7 @@ void get( BufferedChannel *channel ) {
 	}
 
 	if( (*flags & RXFF_MASK) ) {
-        rb_grow(channel->readBuffer, (char) *data);
+        rb_grow(&(channel->readBuffer), (char) *data);
     }
 
     return;

@@ -1,5 +1,6 @@
 #include <bwio.h>
-#include "time.h"
+#include <time.h>
+#include <terminal.h>
 #include <io.h>
 #include <ts7200.h>
 
@@ -22,18 +23,14 @@ int sw( int switch_number, int switch_direction) {
 
 
 int main( int argc, char* argv[] ) {
-    RingBuffer readBuffer;
-    rb_init(&readBuffer);
-
-    RingBuffer writeBuffer;
-    rb_init(&writeBuffer);
-
-    BufferedChannel channel = {COM2, &readBuffer, &writeBuffer};
+    BufferedChannel channel;
+    bc_init(&channel, COM2);
 
     Clock clock;
     cl_init(&clock);
 
-    setfifo(&channel, OFF);
+    TerminalController controller;
+    tc_init(&controller);
 
     DEBUG {
         bwprintf( COM2, "Hello world.\n\r\0" ); 
@@ -47,29 +44,32 @@ int main( int argc, char* argv[] ) {
         long start_time_ms = cl_get_time_ms(&clock);
 
         // Write from write buffer to URT
-        if (!rb_is_empty(&writeBuffer)) {
+        if (!rb_is_empty(&(channel.writeBuffer))) {
             put(&channel);
         }
 
         // Read from URT to read buffer
         get(&channel);
 
-        // Echo input from terminal
-        if (!rb_is_empty(&readBuffer)) {
-            char ch = getc(&channel);
-            putc(&channel, ch);
-        }
-
         // Update clock
         cl_tick(&clock);
-        
 
+        // Handle command
+        // tc_process_terminal_input(&controller, &channel);
+
+        // Handle time
+        if (iter % 1000 == 0) {
+            tc_process_time(&controller, &clock, &channel);
+        }
+        
+        /*
         long end_time_ms = cl_get_time_ms(&clock);
         loop_time_ms += end_time_ms - start_time_ms;
         if (iter % 100 == 0) {
             printf(&channel, "%d ms to complete 100 loops.\r\n",  loop_time_ms);
             loop_time_ms = 0;
         }
+        */
         
         iter ++;
     }
