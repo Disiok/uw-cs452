@@ -8,7 +8,7 @@ void tc_init(TerminalController *controller, SmartTerminal *st) {
 }
 
 int tc_process_terminal_input(TerminalController *controller) {
-    BufferedChannel *channel =  &(controller->st.channel);
+    BufferedChannel *channel =  &(controller->st->channel);
     if (!rb_is_empty(&(channel->readBuffer))) {
         char ch = getc(channel);
 
@@ -31,8 +31,8 @@ int tc_process_time(TerminalController *controller, Clock *clock) {
 }
 
 int tc_update_time(TerminalController *controller, long time_ms) {
-    st_save(&(controller->st));
-    st_move_top_left(&(controller->st));
+    st_save(controller->st);
+    st_move_top_left(controller->st);
     int time = time_ms;
     int ms = time % 1000;
     time /= 1000;
@@ -41,11 +41,13 @@ int tc_update_time(TerminalController *controller, long time_ms) {
     int m = time % 60;
     int h = time / 60;
 
-    printf(&(controller->st.channel), "%d:%d:%d:%d\r\n", h, m, s, ms);
+    printf(&(controller->st->channel), "%d:%d:%d:%d\r\n", h, m, s, ms);
 
-    st_restore(&(controller->st));
+    st_restore(controller->st);
 
     return 0;
 
 }
+
+
 
