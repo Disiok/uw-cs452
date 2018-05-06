@@ -2,6 +2,7 @@
 #include <io.h>
 #include <util.h>
 #include <train.h>
+#include <track_data.h>
 #include <terminal.h>
 
 void tc_init(TerminalController *controller, SmartTerminal *st) {
@@ -16,7 +17,7 @@ int tc_process_time(TerminalController *controller, Clock *clock) {
 }
 
 
-void tc_render_static(TerminalController *controller) {
+void tc_render_static(TerminalController *controller, track_node *track) {
     BufferedChannel *channel =  &(controller->st->channel);
 
     st_clear_screen(controller->st);
@@ -24,6 +25,28 @@ void tc_render_static(TerminalController *controller) {
     // Clock
     st_move_cursor_top_left(controller->st);
     printf(channel, "Clock: ");
+
+    int i;
+    // Switches
+    int switches = 0;
+    
+    for (i = 0; i < TRACK_MAX; i++) {
+        if (track[i].type == NODE_BRANCH) {
+            st_move_cursor(controller->st, SWITCHES_ROW_START + switches % 10, SWITCHES_COL_START + switches / 10 * 5);
+            putstr(channel, track[i].name);
+            switches ++;
+        }
+    }
+    
+    // Sensors
+    int sensors = 0;
+    for (i = 0; i < TRACK_MAX; i++) {
+        if (track[i].type == NODE_SENSOR) {
+            st_move_cursor(controller->st, SENSORS_ROW_START + sensors % 10, SENSORS_COL_START + sensors / 10 * 5);
+            putstr(channel, track[i].name);
+            sensors ++;
+        }
+    }
 
     // Command status
     st_move_cursor(controller->st, STATUS_ROW, START_COL);
@@ -36,6 +59,7 @@ void tc_render_static(TerminalController *controller) {
     // Command prompt
     st_move_cursor(controller->st, PROMPT_ROW, START_COL);
     printf(channel, ">");
+
 
     // Move to prompt
     st_move_cursor(controller->st, PROMPT_ROW, DYNAMIC_COL);

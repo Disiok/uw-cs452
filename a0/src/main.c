@@ -1,6 +1,7 @@
 #include <bwio.h>
 #include <time.h>
 #include <terminal.h>
+#include <track_data.h>
 #include <io.h>
 #include <train.h>
 #include <ts7200.h>
@@ -11,6 +12,10 @@
 #define DEBUG if (DEBUG_FLAG)
 
 int main( int argc, char* argv[] ) {
+    // Track
+    track_node track[TRACK_MAX];
+    init_tracka(track);
+
     // Smart terminal setup
     SmartTerminal st;
     st_init(&st, COM2);
@@ -28,7 +33,7 @@ int main( int argc, char* argv[] ) {
     tc_init(&controller, &st);
 
     // Start of execution
-    tc_render_static(&controller);
+    tc_render_static(&controller, track);
 
     // Main polling loop
     int iter = 0;
