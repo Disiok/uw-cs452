@@ -39,8 +39,24 @@ int main( int argc, char* argv[] ) {
     int iter = 0;
     int loop_time_ms = 0;
 
+    long prev_on = 0;
+    long prev_off = 0;
+
     FOREVER {
         long start_time_ms = cl_get_time_ms(&clock);
+
+        /*
+        if (start_time_ms % 5000 == 0 && start_time_ms != prev_on) {
+            tr_sw(&train_channel, 4, 's');
+            tr_sw(&train_channel, 4, 'c');
+            prev_on = start_time_ms;
+        }
+
+        if (start_time_ms % 5150 == 0 && start_time_ms != prev_off) {
+            putc(&train_channel, TRAIN_SWITCH_OFF);
+            prev_off = start_time_ms;
+        }
+        */
 
         // Update train channel
         bc_poll(&train_channel);

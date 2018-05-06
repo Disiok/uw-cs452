@@ -32,9 +32,9 @@ void tc_render_static(TerminalController *controller, track_node *track) {
     putstr(channel, "Switches");
     int switches = 0;
     for (i = 0; i < TRACK_MAX; i++) {
-        if (track[i].type == NODE_BRANCH) {
-            st_move_cursor(controller->st, SWITCHES_ROW_START + switches % 10, SWITCHES_COL_START + switches / 10 * 5);
-            putstr(channel, track[i].name);
+        if (track[i].type == NODE_BRANCH || track[i].type == NODE_MERGE) {
+            st_move_cursor(controller->st, SWITCHES_ROW_START + switches % 20, SWITCHES_COL_START + switches / 20 * 10);
+            printf(channel, "%s: %d", track[i].name, track[i].num);
             switches ++;
         }
     }
@@ -45,8 +45,8 @@ void tc_render_static(TerminalController *controller, track_node *track) {
     int sensors = 0;
     for (i = 0; i < TRACK_MAX; i++) {
         if (track[i].type == NODE_SENSOR) {
-            st_move_cursor(controller->st, SENSORS_ROW_START + sensors % 10, SENSORS_COL_START + sensors / 10 * 5);
-            putstr(channel, track[i].name);
+            st_move_cursor(controller->st, SENSORS_ROW_START + sensors % 20, SENSORS_COL_START + sensors / 20 * 10);
+            printf(channel, "%s: %d", track[i].name, track[i].num);
             sensors ++;
         }
     }
