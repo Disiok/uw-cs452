@@ -1,23 +1,11 @@
 #include <bwio.h>
 #include <io.h>
+#include <util.h>
+#include <train.h>
 #include <terminal.h>
-
-// Util functions to be refactored later
-int strncmp(const char *s, const char *t, int n) {
-    while(n--) {
-        if (*s++ != *t++) {
-            return *(unsigned char*)(s - 1) - *(unsigned char*)(t - 1); 
-        } 
-    }
-    return 0;
-}
 
 void tc_init(TerminalController *controller, SmartTerminal *st) {
     controller->st = st;
-}
-
-int tc_process_terminal_input(TerminalController *controller) {
-    return st_process_terminal_input(controller->st, controller);
 }
 
 int tc_process_time(TerminalController *controller, Clock *clock) {
@@ -47,7 +35,7 @@ void tc_render_static(TerminalController *controller) {
 
     // Command prompt
     st_move_cursor(controller->st, PROMPT_ROW, START_COL);
-    printf(channel, "Prompt: ");
+    printf(channel, ">");
 
     // Move to prompt
     st_move_cursor(controller->st, PROMPT_ROW, DYNAMIC_COL);
@@ -55,31 +43,38 @@ void tc_render_static(TerminalController *controller) {
 }
 
 int tc_update_command(TerminalController *controller, char *command) {
-    st_save_cursor(controller->st);
-
-    // Update command status
-    st_move_cursor(controller->st, STATUS_ROW, DYNAMIC_COL);
-    st_clear_line_from_cursor(controller->st);
-
     if (strncmp(command, "q", 1) == 0) {
+        // Exit
         return 1;
-    } else if (strncmp(command, "tr", 2) == 0) {
-        printf(&(controller->st->channel), "Got tr");
-    } else if (strncmp(command, "rv", 2) == 0) {
-        printf(&(controller->st->channel), "Got rv");
-    } else if (strncmp(command, "sw", 2) == 0) {
-        printf(&(controller->st->channel), "Got sw");
     } else {
-        printf(&(controller->st->channel), "Got unkown command");
+        st_save_cursor(controller->st);
+
+        // Update command status
+        st_move_cursor(controller->st, STATUS_ROW, DYNAMIC_COL);
+        st_clear_line_from_cursor(controller->st);
+
+        if (strncmp(command, "tr", 2) == 0) {
+            printf(&(controller->st->channel), "Got tr");
+        } else if (strncmp(command, "rv", 2) == 0) {
+            printf(&(controller->st->channel), "Got rv");
+        } else if (strncmp(command, "sw", 2) == 0) {
+            printf(&(controller->st->channel), "Got sw");
+        } else if (strncmp(command, "go", 2) == 0) {
+            printf(&(controller->st->channel), "Got go");
+        } else if (strncmp(command, "stop", 4) == 0) {
+            printf(&(controller->st->channel), "Got stop");
+        } else {
+            printf(&(controller->st->channel), "Got unkown command");
+        }
+
+        // Update command history
+        st_move_cursor(controller->st, HISTORY_ROW, DYNAMIC_COL);
+        st_clear_line_from_cursor(controller->st);
+        putstr(&(controller->st->channel), command);
+
+        st_restore_cursor(controller->st);
+        return 0;
     }
-
-    // Update command history
-    st_move_cursor(controller->st, HISTORY_ROW, DYNAMIC_COL);
-    st_clear_line_from_cursor(controller->st);
-    putstr(&(controller->st->channel), command);
-
-    st_restore_cursor(controller->st);
-    return 0;
 }
 
 int tc_update_time(TerminalController *controller, long time_ms) {
@@ -100,18 +95,6 @@ int tc_update_time(TerminalController *controller, long time_ms) {
     return 0;
 }
 
-int tc_tr(int train_number, int train_speed) {
-    return 0;
-}
-
-int tc_rv(int train_number) {
-    return 0;
-}
-
-int tc_sw(int switch_number, int switch_direction) {
-    return 0;
-}
-
 /*
  * Smart Terminal
  */
@@ -125,7 +108,7 @@ void st_poll(SmartTerminal *st) {
     bc_poll(&(st->channel));
 }
 
-int st_process_terminal_input(SmartTerminal *st, TerminalController *controller) {
+int st_process_terminal_input(SmartTerminal *st, TerminalController *controller, BufferedChannel *train_channel) {
     BufferedChannel *channel =  &(st->channel);
     if (!rb_is_empty(&(channel->readBuffer))) {
         char ch = getc(channel);
@@ -143,6 +126,7 @@ int st_process_terminal_input(SmartTerminal *st, TerminalController *controller)
             st_move_cursor(controller->st, 32, 10);
             st_clear_line_from_cursor(st);
 
+            tr_update_command(train_channel, st->commandBuffer);
             int exit = tc_update_command(controller, st->commandBuffer);
 
             // NOTE(sdsuo): Wipe out the command buffer

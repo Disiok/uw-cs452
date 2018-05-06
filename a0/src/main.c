@@ -2,6 +2,7 @@
 #include <time.h>
 #include <terminal.h>
 #include <io.h>
+#include <train.h>
 #include <ts7200.h>
 
 #define FOREVER for ( ; ; )
@@ -16,23 +17,7 @@ int main( int argc, char* argv[] ) {
 
     BufferedChannel train_channel;
     bc_init(&train_channel, COM1);
-
-    // Train communication setup
-    // Set Baud rate = 2400
-    setspeed(&train_channel, 2400);
-
-    /*
-     * Set control
-     *
-     * Start bits (if requested by computer) = 1
-     * Stop bits = 2
-     * Parity = None
-     * Word size = 8 bits
-     */
-    setnoparity(&train_channel);
-    set2stopbits(&train_channel);
-    set8wordsize(&train_channel);
-    setfifo(&train_channel, 0);
+    tr_init_protocol(&train_channel);
 
     // Clock setup
     Clock clock;
@@ -43,20 +28,7 @@ int main( int argc, char* argv[] ) {
     tc_init(&controller, &st);
 
     // Start of execution
-    // tc_render_static(&controller);
-
-    int speed_high = *(int *)(UART1_BASE + UART_LCRM_OFFSET);
-    int speed_low = *(int *)(UART1_BASE + UART_LCRL_OFFSET);
-    int control = *(int *)( UART1_BASE + UART_LCRH_OFFSET );
-
-    bwprintf(COM2, "Control bits: \r\n");
-    bwprintf(COM2, "%x\r\n", control);
-    bwprintf(COM2, "%x\r\n", speed_high);
-    bwprintf(COM2, "%x\r\n", speed_low);
-
-    putc(&train_channel, 0x60);
-
-    putc(&train_channel, 0x61);
+    tc_render_static(&controller);
 
     // Main polling loop
     int iter = 0;
@@ -74,15 +46,13 @@ int main( int argc, char* argv[] ) {
         // Update clock
         cl_poll(&clock);
 
-        /*
         // Handle time
         tc_process_time(&controller, &clock);
 
         // Handle command
-        if (tc_process_terminal_input(&controller)) {
+        if (st_process_terminal_input(&st, &controller, &train_channel)) {
             break; 
         }
-        */
         
         /*
         long end_time_ms = cl_get_time_ms(&clock);

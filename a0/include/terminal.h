@@ -43,7 +43,6 @@ typedef struct _TerminalController {
 } TerminalController;
 
 void tc_init(TerminalController *controller, SmartTerminal *st);
-int tc_process_terminal_input(TerminalController *controller);
 int tc_process_time(TerminalController *controller, Clock *clock);
 // Following functions for formatting and positioning
 void tc_render_static(TerminalController *controller);
@@ -52,7 +51,7 @@ int tc_update_sensor(TerminalController *controller);
 
 void st_init(SmartTerminal *st, int id);
 void st_poll(SmartTerminal *st);
-int st_process_terminal_input(SmartTerminal *st, TerminalController *controller);
+int st_process_terminal_input(SmartTerminal *st, TerminalController *controller, BufferedChannel *train_channel);
 void st_save_cursor(SmartTerminal *st);
 void st_restore_cursor(SmartTerminal *st);
 void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);
