@@ -28,10 +28,10 @@ $(TARGET): $(OBJECTS)
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIB)
 
 build/%.o: build/%.s
-	$(AS) $(ASFLAGS) -o $@ $<
+	$(AS) $(ASFLAGS) $< -o $@ 
 
 build/%.s: src/%.c
-	$(XCC) -S $(CFLAGS) -o $@ $<
+	$(XCC) -S $(CFLAGS) $< -o $@
 
 clean:
 	-rm -f build/main.elf build/*.s build/*.o build/main.map

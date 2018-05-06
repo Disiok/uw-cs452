@@ -4,10 +4,25 @@
 #include <io.h>
 #include <time.h>
 
+/*
+ * Smart Terminal: wrapper on gtk for moving cursors around
+ *
+ * This contains logic for:
+ * 1. Basic functions dealing with cursors
+ */
+
 #define CHAR_ENTER 0x0D
 #define CHAR_VISIBLE_START 0x20
 #define CHAR_VISIBLE_END 0x7E
 #define CHAR_QUIT 'q'
+
+#define COMMAND_BUFFER_SIZE 64
+
+typedef struct {
+    BufferedChannel channel;
+    char commandBuffer[COMMAND_BUFFER_SIZE];
+    int size;
+} SmartTerminal;
 
 /*
  * Terminal Controller: controller for displaying user interface
@@ -15,16 +30,24 @@
  * This contain logics for:
  * 1. Location of user interface elements
  */
-typedef struct {
+typedef struct _TerminalController {
     SmartTerminal *st;
 } TerminalController;
 
 void tc_init(TerminalController *controller, SmartTerminal *st);
-
 int tc_process_terminal_input(TerminalController *controller);
 int tc_process_time(TerminalController *controller, Clock *clock);
-
 // Following functions for formatting and positioning
 int tc_update_time(TerminalController *controller, long time_ms);
 int tc_update_sensor(TerminalController *controller);
+
+void st_init(SmartTerminal *st, int id);
+void st_poll(SmartTerminal *st);
+int st_process_terminal_input(SmartTerminal *st, TerminalController *controller);
+void st_save_cursor(SmartTerminal *st);
+void st_restore_cursor(SmartTerminal *st);
+void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);
+void st_move_cursor_top_left(SmartTerminal *st);
+void st_clear_line(SmartTerminal *st);
+void st_clear_screen(SmartTerminal *st);
 
