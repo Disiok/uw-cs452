@@ -59,6 +59,8 @@ void bc_init( BufferedChannel *channel, int id);
  * 1. Basic functions dealing with cursors
  */
 
+typedef struct TerminalController;
+
 typedef struct {
     BufferedChannel channel;
     char commandBuffer[COMMAND_BUFFER_SIZE];
@@ -67,7 +69,7 @@ typedef struct {
 
 void st_init(SmartTerminal *st, int id);
 void st_poll(SmartTerminal *st);
-void st_process_terminal_input(SmartTerminal *st, TerminalController *controller);
+int st_process_terminal_input(SmartTerminal *st, TerminalController *controller);
 void st_save_cursor(SmartTerminal *st);
 void st_restore_cursor(SmartTerminal *st);
 void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);
