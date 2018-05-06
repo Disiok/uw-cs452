@@ -36,6 +36,8 @@ typedef struct {
 
 void bc_init( BufferedChannel *channel, int id);
 
+void bc_poll( BufferedChannel *channel);
+
 int setfifo( BufferedChannel *channel, int state );
 
 int setspeed( BufferedChannel *channel, int speed );

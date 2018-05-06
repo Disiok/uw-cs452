@@ -23,6 +23,16 @@ void bc_init(BufferedChannel *channel, int id) {
     return;
 }
 
+void bc_poll(BufferedChannel *channel) {
+    // Write from write buffer to URT
+    if (!rb_is_empty(&(channel->writeBuffer))) {
+        put(channel);
+    }
+
+    // Read from URT to read buffer
+    get(channel);
+}
+
 /*
  * The UARTs are initialized by RedBoot to the following state
  * 	115,200 bps
@@ -71,7 +81,7 @@ int setspeed( BufferedChannel *channel, int speed ) {
 		return 0;
 	case 2400:
 		*high = 0x0;
-		*low = 0x90;
+		*low = 0xbf;
 		return 0;
 	default:
 		return -1;

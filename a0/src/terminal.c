@@ -122,13 +122,7 @@ void st_init(SmartTerminal *st, int id) {
 }
 
 void st_poll(SmartTerminal *st) {
-    // Write from write buffer to URT
-    if (!rb_is_empty(&(st->channel.writeBuffer))) {
-        put(&(st->channel));
-    }
-
-    // Read from URT to read buffer
-    get(&(st->channel));
+    bc_poll(&(st->channel));
 }
 
 int st_process_terminal_input(SmartTerminal *st, TerminalController *controller) {
