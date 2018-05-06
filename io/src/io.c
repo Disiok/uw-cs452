@@ -58,7 +58,7 @@ void bc_init(BufferedChannel *channel, int id) {
 
 void st_init(SmartTerminal *st, int id) {
     bc_init(&(st->channel), id);
-    rb_init(&(st->commandBuffer));
+    st->size = 0;
 }
 
 void st_poll(SmartTerminal *st) {
@@ -71,19 +71,44 @@ void st_poll(SmartTerminal *st) {
     get(&(st->channel));
 }
 
-void st_save(SmartTerminal *st) {
+int st_process_terminal_input(SmartTerminal *st, TerminalController *controller) {
+    BufferedChannel *channel =  &(st->channel);
+    if (!rb_is_empty(&(channel->readBuffer))) {
+        char ch = getc(channel);
+
+        // Echo visible input from terminal
+        if (ch >= CHAR_VISIBLE_START && ch <= CHAR_VISIBLE_END) {
+            putc(channel, ch);
+
+            // Add to command buffer
+            // TODO(sdsuo): Check for overflow here
+            st->commandBuffer[st->size] = ch;
+            st->size ++;
+        } else if (ch == CHAR_ENTER) {
+            tc_update_command(controller, st->commandBuffer);
+
+            // NOTE(sdsuo): Wipe out the command buffer
+            st->size = 0;
+        } else {
+            // TODO(sdsuo): Handle other cases (e.g. backspace)
+        }
+    } 
+    return 0;
+}
+
+void st_save_cursor(SmartTerminal *st) {
     putstr(&(st->channel), "\x1B""7");
 }
 
-void st_restore(SmartTerminal *st) {
+void st_restore_cursor(SmartTerminal *st) {
     putstr(&(st->channel), "\x1B""8");
 }
 
-void st_move_top_left(SmartTerminal *st) {
+void st_move_cursor_top_left(SmartTerminal *st) {
     putstr(&(st->channel), "\x1B[H");
 }
 
-void st_move(SmartTerminal *st, int vertical, int horizontal) {
+void st_move_cursour(SmartTerminal *st, int vertical, int horizontal) {
     printf(&(st->channel), "\x1B[%d;%dH", vertical, horizontal);
 }
 

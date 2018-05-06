@@ -22,16 +22,23 @@ void cl_init(Clock *clock) {
     clock->value_addr = (int *) (TIMER3_BASE + VAL_OFFSET);
     clock->time_ms = 0;
     clock->previous_value = PERIOD_TICK;
+    clock->time_changed = 1;
 }
 
 void cl_tick(Clock *clock) {
     int clock_value = *(clock->value_addr);
     if (clock_value > clock->previous_value) {
         clock->time_ms ++;
+        clock->time_changed = 1;
     }
     clock->previous_value = clock_value;
 }
 
 long cl_get_time_ms(Clock *clock) {
+    clock->time_changed = 0;
     return clock->time_ms;
+}
+
+int cl_time_changed(Clock *clock) {
+    return clock->time_changed;
 }

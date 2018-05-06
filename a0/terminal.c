@@ -7,27 +7,20 @@ void tc_init(TerminalController *controller, SmartTerminal *st) {
     controller->st = st;
 }
 
+
 int tc_process_terminal_input(TerminalController *controller) {
-    BufferedChannel *channel =  &(controller->st->channel);
-    if (!rb_is_empty(&(channel->readBuffer))) {
-        char ch = getc(channel);
-
-        // Echo visible input from terminal
-        if (ch >= CHAR_VISIBLE_START && ch <= CHAR_VISIBLE_END) {
-            putc(channel, ch);
-        } else if (ch == CHAR_ENTER) {
-
-        } else {
-        
-        }
-    } 
-
-    return 0;
+    return st_process_terminal_input(controller->st, controller);
 }
 
 int tc_process_time(TerminalController *controller, Clock *clock) {
-    tc_update_time(controller, cl_get_time_ms(clock));
+    if (cl_time_changed(clock)) {
+        tc_update_time(controller, cl_get_time_ms(clock));
+    }
     return 0;
+}
+
+int tc_update_command(TerminalController *controller, char *command) {
+
 }
 
 int tc_update_time(TerminalController *controller, long time_ms) {
@@ -48,6 +41,20 @@ int tc_update_time(TerminalController *controller, long time_ms) {
     return 0;
 
 }
+
+int tc_tr( int train_number, int train_speed ) {
+    return 0;
+}
+
+int tc_rv( int train_number ) {
+    return 0;
+}
+
+int tc_sw( int switch_number, int switch_direction) {
+    return 0;
+}
+
+
 
 
 

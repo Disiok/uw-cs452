@@ -9,19 +9,6 @@
 #define DEBUG_FLAG 1
 #define DEBUG if (DEBUG_FLAG)
 
-int tr( int train_number, int train_speed ) {
-    return 0;
-}
-
-int rv( int train_number ) {
-    return 0;
-}
-
-int sw( int switch_number, int switch_direction) {
-    return 0;
-}
-
-
 int main( int argc, char* argv[] ) {
     // Objects
     SmartTerminal st;
@@ -33,12 +20,14 @@ int main( int argc, char* argv[] ) {
     TerminalController controller;
     tc_init(&controller, &st);
 
+    // Start of execution
     DEBUG {
         bwprintf( COM2, "Hello world.\n\r\0" ); 
     }
 
     st_clear_screen(&st);
 
+    // Main polling loop
     int iter = 0;
     int loop_time_ms = 0;
 
@@ -54,9 +43,7 @@ int main( int argc, char* argv[] ) {
         tc_process_terminal_input(&controller);
 
         // Handle time
-        if (iter % 1000 == 0) {
-            tc_process_time(&controller, &clock);
-        }
+        tc_process_time(&controller, &clock);
         
         /*
         long end_time_ms = cl_get_time_ms(&clock);
@@ -70,6 +57,7 @@ int main( int argc, char* argv[] ) {
         iter ++;
     }
     
+    // Clean up
     DEBUG {
         bwputstr( COM2, "Done.\r\n"); 
     }
