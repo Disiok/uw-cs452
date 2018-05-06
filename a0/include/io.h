@@ -42,6 +42,12 @@ int setfifo( BufferedChannel *channel, int state );
 
 int setspeed( BufferedChannel *channel, int speed );
 
+int setnoparity( BufferedChannel *channel);
+
+int set8wordsize( BufferedChannel *channel);
+
+int set2stopbits( BufferedChannel *channel);
+
 void put( BufferedChannel *channel );
 
 void get( BufferedChannel *channel );

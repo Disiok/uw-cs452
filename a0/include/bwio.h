@@ -25,10 +25,6 @@ typedef char *va_list;
 #define ON	1
 #define	OFF	0
 
-int bwsetfifo( int channel, int state );
-
-int bwsetspeed( int channel, int speed );
-
 int bwputc( int channel, char c );
 
 int bwgetc( int channel );

@@ -59,6 +59,67 @@ int setfifo( BufferedChannel *channel, int state ) {
 	return 0;
 }
 
+int setnoparity( BufferedChannel *channel) {
+
+	int *line, buf;
+	switch( channel->id ) {
+	case COM1:
+		line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
+	        break;
+	case COM2:
+	        line = (int *)( UART2_BASE + UART_LCRH_OFFSET );
+	        break;
+	default:
+	        return -1;
+	        break;
+	}
+	buf = *line;
+	buf = buf & ~PEN_MASK & ~EPS_MASK;
+	*line = buf;
+	return 0;
+
+}
+
+
+int set8wordsize( BufferedChannel *channel) {
+	int *line, buf;
+	switch( channel->id ) {
+	case COM1:
+		line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
+	        break;
+	case COM2:
+	        line = (int *)( UART2_BASE + UART_LCRH_OFFSET );
+	        break;
+	default:
+	        return -1;
+	        break;
+	}
+	buf = *line;
+	buf = buf | WLEN_MASK;
+	*line = buf;
+	return 0;
+}
+
+
+int set2stopbits( BufferedChannel *channel) {
+	int *line, buf;
+	switch( channel->id ) {
+	case COM1:
+		line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
+	        break;
+	case COM2:
+	        line = (int *)( UART2_BASE + UART_LCRH_OFFSET );
+	        break;
+	default:
+	        return -1;
+	        break;
+	}
+	buf = *line;
+	buf = buf | STP2_MASK;
+	*line = buf;
+	return 0;
+}
+
 int setspeed( BufferedChannel *channel, int speed ) {
 	int *high, *low;
 	switch( channel->id ) {

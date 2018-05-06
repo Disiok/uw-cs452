@@ -36,34 +36,26 @@ int main( int argc, char* argv[] ) {
     /*
      * Baud rate = 2400
      */
-    bwsetspeed(COM1, 2400);
-    int speed_high = *(int *)(UART1_BASE + UART_LCRM_OFFSET);
-    int speed_low = *(int *)(UART1_BASE + UART_LCRL_OFFSET);
-
+    setspeed(&channel, 2400);
     /*
      * Start bits (if requested by computer) = 1
      * Stop bits = 2
      * Parity = None
      * Word size = 8 bits
      */
-    int *line = (int *)( UART1_BASE + UART_LCRH_OFFSET );
+    setnoparity(&channel);
+    set2stopbits(&channel);
+    set8wordsize(&channel);
+    setfifo(&channel, 0);
 
-	int buf = *line;
-    // FIFO off
-	buf =  buf & ~FEN_MASK;
-    // parity disable
-	buf =  buf & ~PEN_MASK & ~STP2_MASK;
-    // stop bits 2
-    buf = buf | STP2_MASK;
-    // word size 8
-    buf = buf | WLEN_MASK;
-	*line = buf;
+    int speed_high = *(int *)(UART1_BASE + UART_LCRM_OFFSET);
+    int speed_low = *(int *)(UART1_BASE + UART_LCRL_OFFSET);
+    int control = *(int *)( UART1_BASE + UART_LCRH_OFFSET );
 
     bwprintf(COM2, "What the fuck\r\n");
-    bwprintf(COM2, "%x\r\n", buf);
+    bwprintf(COM2, "%x\r\n", control);
     bwprintf(COM2, "%x\r\n", speed_high);
     bwprintf(COM2, "%x\r\n", speed_low);
-
 
     FOREVER {
         bwputc(COM1, 0x60);
