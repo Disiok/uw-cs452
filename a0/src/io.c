@@ -155,17 +155,22 @@ void put( BufferedChannel *channel ) {
 	case COM1:
 		flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );
 		data = (int *)( UART1_BASE + UART_DATA_OFFSET );
+
+        if( !(*flags & (TXFF_MASK | TXBUSY_MASK))  && (*flags & CTS_MASK) ) {
+            *data = rb_shrink(&(channel->writeBuffer));
+        }
 		break;
 	case COM2:
 		flags = (int *)( UART2_BASE + UART_FLAG_OFFSET );
 		data = (int *)( UART2_BASE + UART_DATA_OFFSET );
+
+        if( !(*flags & TXFF_MASK) ) {
+            *data = rb_shrink(&(channel->writeBuffer));
+        }
 		break;
 	default:
 		break;
 	}
-	if( !(*flags & TXFF_MASK) ) {
-        *data = rb_shrink(&(channel->writeBuffer));
-    }
     return;
 }
 

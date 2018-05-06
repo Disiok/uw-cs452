@@ -10,57 +10,63 @@
 #define DEBUG if (DEBUG_FLAG)
 
 int main( int argc, char* argv[] ) {
-    // Objects
+    // Smart terminal setup
     SmartTerminal st;
     st_init(&st, COM2);
 
-    BufferedChannel channel;
-    bc_init(&channel, COM1);
+    BufferedChannel train_channel;
+    bc_init(&train_channel, COM1);
 
+    // Train communication setup
+    // Set Baud rate = 2400
+    setspeed(&train_channel, 2400);
+
+    /*
+     * Set control
+     *
+     * Start bits (if requested by computer) = 1
+     * Stop bits = 2
+     * Parity = None
+     * Word size = 8 bits
+     */
+    setnoparity(&train_channel);
+    set2stopbits(&train_channel);
+    set8wordsize(&train_channel);
+    setfifo(&train_channel, 0);
+
+    // Clock setup
     Clock clock;
     cl_init(&clock);
 
+    // Terminal controller
     TerminalController controller;
     tc_init(&controller, &st);
 
     // Start of execution
     // tc_render_static(&controller);
 
-    // Main polling loop
-    int iter = 0;
-    int loop_time_ms = 0;
-
-
-    // Train communication setup
-    
-    /*
-     * Baud rate = 2400
-     */
-    setspeed(&channel, 2400);
-    /*
-     * Start bits (if requested by computer) = 1
-     * Stop bits = 2
-     * Parity = None
-     * Word size = 8 bits
-     */
-    setnoparity(&channel);
-    set2stopbits(&channel);
-    set8wordsize(&channel);
-    setfifo(&channel, 0);
-
     int speed_high = *(int *)(UART1_BASE + UART_LCRM_OFFSET);
     int speed_low = *(int *)(UART1_BASE + UART_LCRL_OFFSET);
     int control = *(int *)( UART1_BASE + UART_LCRH_OFFSET );
 
-    bwprintf(COM2, "What the fuck\r\n");
+    bwprintf(COM2, "Control bits: \r\n");
     bwprintf(COM2, "%x\r\n", control);
     bwprintf(COM2, "%x\r\n", speed_high);
     bwprintf(COM2, "%x\r\n", speed_low);
 
-    FOREVER {
-        bwputc(COM1, 0x60);
+    putc(&train_channel, 0x60);
 
+    putc(&train_channel, 0x61);
+
+    // Main polling loop
+    int iter = 0;
+    int loop_time_ms = 0;
+
+    FOREVER {
         long start_time_ms = cl_get_time_ms(&clock);
+
+        // Update train channel
+        bc_poll(&train_channel);
 
         // Update terminal channel
         st_poll(&st);
