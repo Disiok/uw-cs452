@@ -12,9 +12,17 @@
  */
 
 #define CHAR_ENTER 0x0D
+#define CHAR_BACKSPACE 0x08
 #define CHAR_VISIBLE_START 0x20
 #define CHAR_VISIBLE_END 0x7E
 #define CHAR_QUIT 'q'
+
+#define STATUS_ROW 30
+#define HISTORY_ROW 31
+#define PROMPT_ROW 32
+
+#define START_COL 0
+#define DYNAMIC_COL 10
 
 #define COMMAND_BUFFER_SIZE 64
 
@@ -38,6 +46,7 @@ void tc_init(TerminalController *controller, SmartTerminal *st);
 int tc_process_terminal_input(TerminalController *controller);
 int tc_process_time(TerminalController *controller, Clock *clock);
 // Following functions for formatting and positioning
+void tc_render_static(TerminalController *controller);
 int tc_update_time(TerminalController *controller, long time_ms);
 int tc_update_sensor(TerminalController *controller);
 
@@ -48,6 +57,7 @@ void st_save_cursor(SmartTerminal *st);
 void st_restore_cursor(SmartTerminal *st);
 void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);
 void st_move_cursor_top_left(SmartTerminal *st);
+void st_clear_line_from_cursor(SmartTerminal *st);
 void st_clear_line(SmartTerminal *st);
 void st_clear_screen(SmartTerminal *st);
 

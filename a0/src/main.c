@@ -21,11 +21,7 @@ int main( int argc, char* argv[] ) {
     tc_init(&controller, &st);
 
     // Start of execution
-    DEBUG {
-        bwprintf( COM2, "Hello world.\n\r\0" ); 
-    }
-
-    st_clear_screen(&st);
+    tc_render_static(&controller);
 
     // Main polling loop
     int iter = 0;
@@ -34,32 +30,30 @@ int main( int argc, char* argv[] ) {
     FOREVER {
         long start_time_ms = cl_get_time_ms(&clock);
 
+        // Update terminal channel
         st_poll(&st);
 
         // Update clock
-        cl_tick(&clock);
-
-        // Handle command
-        tc_process_terminal_input(&controller);
+        cl_poll(&clock);
 
         // Handle time
         tc_process_time(&controller, &clock);
+
+        // Handle command
+        if (tc_process_terminal_input(&controller)) {
+            break; 
+        }
         
         /*
         long end_time_ms = cl_get_time_ms(&clock);
         loop_time_ms += end_time_ms - start_time_ms;
         if (iter % 100 == 0) {
-            printf(&channel, "%d ms to complete 100 loops.\r\n",  loop_time_ms);
+            printf(&(st.channel), "%d ms to complete 100 loops.\r\n",  loop_time_ms);
             loop_time_ms = 0;
         }
         */
         
         iter ++;
-    }
-    
-    // Clean up
-    DEBUG {
-        bwputstr( COM2, "Done.\r\n"); 
     }
     return 0;
 }

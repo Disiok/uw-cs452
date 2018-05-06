@@ -14,7 +14,7 @@ typedef struct {
 
 void cl_init(Clock *clock);
 
-void cl_tick(Clock *clock);
+void cl_poll(Clock *clock);
 
 long cl_get_time_ms(Clock *clock);
 

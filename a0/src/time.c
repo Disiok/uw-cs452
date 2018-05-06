@@ -25,11 +25,14 @@ void cl_init(Clock *clock) {
     clock->time_changed = 1;
 }
 
-void cl_tick(Clock *clock) {
+void cl_poll(Clock *clock) {
     int clock_value = *(clock->value_addr);
     if (clock_value > clock->previous_value) {
         clock->time_ms ++;
-        clock->time_changed = 1;
+
+        if (clock->time_ms % 10 == 0) {
+            clock->time_changed = 1;
+        }
     }
     clock->previous_value = clock_value;
 }

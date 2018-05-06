@@ -1,7 +1,7 @@
 
 #pragma once 
 
-#define RING_BUFFER_SIZE 32
+#define RING_BUFFER_SIZE 256
 
 typedef struct {
     int head;
