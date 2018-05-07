@@ -144,43 +144,55 @@ void st_render_static(SmartTerminal *st, track_node *track) {
     return;
 }
 
+int st_update_status(SmartTerminal *st, char *status) {
+    st_save_cursor(st);
+    st_move_cursor(st, STATUS_ROW, DYNAMIC_COL);
+    st_clear_line_from_cursor(st);
+    putstr(&(st->channel), status);
+    st_restore_cursor(st);
+
+    return 0;
+}
+
+int st_update_history(SmartTerminal *st, char *history) {
+    st_save_cursor(st);
+    st_move_cursor(st, HISTORY_ROW, DYNAMIC_COL);
+    st_clear_line_from_cursor(st);
+    putstr(&(st->channel), history);
+    st_restore_cursor(st);
+
+    return 0;
+}
+
 
 int st_update_command(SmartTerminal *st, char *command) {
     if (strncmp(command, "q", 1) == 0) {
         // Exit
         return 1;
     } else {
-        st_save_cursor(st);
+        // Update command history
+        st_update_history(st, command);
 
-        // Update command status
-        st_move_cursor(st, STATUS_ROW, DYNAMIC_COL);
-        st_clear_line_from_cursor(st);
-
+        // Update status
         if (strncmp(command, "tr", 2) == 0) {
-            printf(&(st->channel), "Got tr");
+            st_update_status(st, "Got tr command");
         } else if (strncmp(command, "rv", 2) == 0) {
-            printf(&(st->channel), "Got rv");
+            st_update_status(st, "Got rv command");
         } else if (strncmp(command, "sw", 2) == 0) {
-            printf(&(st->channel), "Got sw");
+            st_update_status(st, "Got sw command");
         } else if (strncmp(command, "go", 2) == 0) {
-            printf(&(st->channel), "Got go");
+            st_update_status(st, "Got go command");
         } else if (strncmp(command, "stop", 4) == 0) {
-            printf(&(st->channel), "Got stop");
+            st_update_status(st, "Got stop command");
         } else {
-            printf(&(st->channel), "Got unkown command");
+            st_update_status(st, "Got unknown command");
         }
 
-        // Update command history
-        st_move_cursor(st, HISTORY_ROW, DYNAMIC_COL);
-        st_clear_line_from_cursor(st);
-        putstr(&(st->channel), command);
-
-        st_restore_cursor(st);
         return 0;
     }
 }
 
-int st_update_time(SmartTerminal *st, long time_ms) {
+int st_update_time(SmartTerminal *st, int time_ms) {
     st_save_cursor(st);
     st_move_cursor(st, 0, 10);
 
@@ -211,7 +223,7 @@ int st_update_sensors(SmartTerminal *st, char *sensors) {
         for (j = 0; j < 8; j ++) { 
             putc(&(st->channel), ((state >> j) & 1) + '0');
         }
-        st_move_cursor(st, 40, 50 + i + 1);
+        st_move_cursor(st, 40 + i + 1, 50);
     }
 
     st_restore_cursor(st);

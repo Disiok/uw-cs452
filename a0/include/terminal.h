@@ -55,8 +55,10 @@ void st_clear_screen(SmartTerminal *st);
 
 // Following functions for formatting and positioning
 void st_render_static(SmartTerminal *st, track_node *track);
+int st_update_status(SmartTerminal *st, char *status);
+int st_update_history(SmartTerminal *st, char *history);
 int st_update_command(SmartTerminal *st, char *command);
-int st_update_time(SmartTerminal *st, long time_ms);
+int st_update_time(SmartTerminal *st, int time_ms);
 int st_update_sensors(SmartTerminal *st, char *sensors);
 
 /*
