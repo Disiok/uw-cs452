@@ -9,14 +9,6 @@ void tc_init(TerminalController *controller, SmartTerminal *st) {
     controller->st = st;
 }
 
-int tc_process_time(TerminalController *controller, Clock *clock) {
-    if (cl_time_changed(clock)) {
-        tc_update_time(controller, cl_get_time_ms(clock));
-    }
-    return 0;
-}
-
-
 void tc_render_static(TerminalController *controller, track_node *track) {
     BufferedChannel *channel =  &(controller->st->channel);
 

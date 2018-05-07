@@ -58,6 +58,7 @@ void tc_init(TerminalController *controller, SmartTerminal *st);
 int tc_process_time(TerminalController *controller, Clock *clock);
 // Following functions for formatting and positioning
 void tc_render_static(TerminalController *controller, track_node *track);
+int tc_update_command(TerminalController *controller, char *command);
 int tc_update_time(TerminalController *controller, long time_ms);
 int tc_update_sensor(TerminalController *controller);
 

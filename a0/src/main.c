@@ -42,13 +42,14 @@ int main( int argc, char* argv[] ) {
     FOREVER {
         long start_time_ms = cl_get_time_ms(&clock);
 
-        // Update clock, train channel, terminal channel
+        // Update clock, and clock display
         cl_poll(&clock, &controller);
+        
+        // Update train channel, and sensor display
         tr_poll(&train_controller, &controller);
-        st_poll(&st);
 
-        // Handle time
-        tc_process_time(&controller, &clock);
+        // Update terminal channel, and terminal display
+        st_poll(&st);
 
         // Handle command
         if (st_process_terminal_input(&st, &controller, &train_controller)) {

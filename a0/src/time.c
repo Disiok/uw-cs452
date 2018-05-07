@@ -37,6 +37,10 @@ void cl_poll(Clock *clock, TerminalController *controller) {
         }
     }
     clock->previous_value = clock_value;
+
+    if (clock->time_changed) {
+        tc_update_time(controller, clock->time_ms);
+    }
 }
 
 long cl_get_time_ms(Clock *clock) {
