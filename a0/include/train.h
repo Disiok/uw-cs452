@@ -54,7 +54,7 @@ struct TrainController {
 void tr_init(TrainController *controller, Clock *clock);
 void tr_init_protocol(TrainController *controller);
 void tr_init_train_speed(TrainController *controller);
-void tr_poll(TrainController *controller, TerminalController *terminal);
+void tr_poll(TrainController *controller, SmartTerminal *st);
 void tr_update_command(TrainController *controller, char *command);
 
 // Train set functions

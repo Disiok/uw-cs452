@@ -23,6 +23,7 @@ int main( int argc, char* argv[] ) {
     // Smart terminal setup
     SmartTerminal st;
     st_init(&st);
+    st_render_static(&st, track);
 
     // Train controller setup
     TrainController train_controller;
@@ -30,10 +31,7 @@ int main( int argc, char* argv[] ) {
 
     // Terminal controller setup
     TerminalController controller;
-    tc_init(&controller, &st);
-
-    // Start of execution
-    tc_render_static(&controller, track);
+    tc_init(&controller);
 
     // Main polling loop
     int iter = 0;
@@ -43,16 +41,16 @@ int main( int argc, char* argv[] ) {
         long start_time_ms = cl_get_time_ms(&clock);
 
         // Update clock, and clock display
-        cl_poll(&clock, &controller);
+        cl_poll(&clock, &st);
         
         // Update train channel, and sensor display
-        tr_poll(&train_controller, &controller);
+        tr_poll(&train_controller, &st);
 
         // Update terminal channel, and terminal display
         st_poll(&st);
 
         // Handle command
-        if (st_process_terminal_input(&st, &controller, &train_controller)) {
+        if (tc_poll(&controller, &st, &train_controller)) {
             break; 
         }
         

@@ -27,7 +27,7 @@ void cl_init(Clock *clock) {
     clock->time_changed = 1;
 }
 
-void cl_poll(Clock *clock, TerminalController *controller) {
+void cl_poll(Clock *clock, SmartTerminal *st) {
     int clock_value = *(clock->value_addr);
     if (clock_value > clock->previous_value) {
         clock->time_ms ++;
@@ -39,7 +39,7 @@ void cl_poll(Clock *clock, TerminalController *controller) {
     clock->previous_value = clock_value;
 
     if (clock->time_changed) {
-        tc_update_time(controller, clock->time_ms);
+        st_update_time(st, clock->time_ms);
     }
 }
 

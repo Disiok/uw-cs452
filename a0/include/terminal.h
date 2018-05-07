@@ -14,6 +14,7 @@ typedef struct TerminalController TerminalController;
  *
  * This contains logic for:
  * 1. Basic functions dealing with cursors
+ * 2. Location of user interface elements
  */
 
 // Special characters
@@ -40,31 +41,10 @@ typedef struct TerminalController TerminalController;
 
 struct SmartTerminal{
     BufferedChannel channel;
-    char commandBuffer[COMMAND_BUFFER_SIZE];
-    int size;
 };
-
-/*
- * Terminal Controller: controller for displaying user interface
- *
- * This contain logics for:
- * 1. Location of user interface elements
- */
-struct TerminalController {
-    SmartTerminal *st;
-};
-
-void tc_init(TerminalController *controller, SmartTerminal *st);
-int tc_process_time(TerminalController *controller, Clock *clock);
-// Following functions for formatting and positioning
-void tc_render_static(TerminalController *controller, track_node *track);
-int tc_update_command(TerminalController *controller, char *command);
-int tc_update_time(TerminalController *controller, long time_ms);
-int tc_update_sensor(TerminalController *controller);
 
 void st_init(SmartTerminal *st);
 void st_poll(SmartTerminal *st);
-int st_process_terminal_input(SmartTerminal *st, TerminalController *terminal_controller, TrainController *train_controller);
 void st_save_cursor(SmartTerminal *st);
 void st_restore_cursor(SmartTerminal *st);
 void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);
@@ -72,4 +52,24 @@ void st_move_cursor_top_left(SmartTerminal *st);
 void st_clear_line_from_cursor(SmartTerminal *st);
 void st_clear_line(SmartTerminal *st);
 void st_clear_screen(SmartTerminal *st);
+
+// Following functions for formatting and positioning
+void st_render_static(SmartTerminal *st, track_node *track);
+int st_update_command(SmartTerminal *st, char *command);
+int st_update_time(SmartTerminal *st, long time_ms);
+int st_update_sensors(SmartTerminal *st, char *sensors);
+
+/*
+ * Terminal Controller: controller for displaying user interface
+ *
+ * This contain logics for:
+ * 1. Parsing commands
+ */
+struct TerminalController {
+    char commandBuffer[COMMAND_BUFFER_SIZE];
+    int size;
+};
+
+void tc_init(TerminalController *controller);
+int tc_poll(TerminalController *terminal_controller, SmartTerminal *st, TrainController *train_controller);
 

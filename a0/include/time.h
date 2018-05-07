@@ -16,7 +16,7 @@ typedef struct {
 
 void cl_init(Clock *clock);
 
-void cl_poll(Clock *clock, TerminalController *controller);
+void cl_poll(Clock *clock, SmartTerminal *st);
 
 long cl_get_time_ms(Clock *clock);
 

@@ -44,7 +44,7 @@ void tr_init_train_speed(TrainController *controller) {
     return;
 }
 
-void tr_poll(TrainController *controller, TerminalController *terminal) {
+void tr_poll(TrainController *controller, SmartTerminal *st) {
     BufferedChannel *channel = &(controller->channel);
     bc_poll(channel);
 
@@ -77,10 +77,14 @@ void tr_poll(TrainController *controller, TerminalController *terminal) {
 
         // Poll sensors
         if (!rb_is_empty(&(channel->readBuffer))) {
-              
+            char sensors[10];
+            int i;
+            for (i = 0; i < 10; i ++) {
+                sensors[i] = rb_shrink(&(channel->readBuffer));
+            }
+            st_update_sensors(st, sensors);      
         }
         tr_request_sensors(controller, 5);
-        
     }
 }
 
