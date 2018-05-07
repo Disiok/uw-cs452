@@ -33,6 +33,9 @@ void tr_init_protocol(TrainController *controller) {
 
 void tr_poll(TrainController *controller) {
     BufferedChannel *channel = &(controller->channel);
+
+    bc_poll(channel);
+
     RingBuffer *swBuffer = &(controller->swBuffer);
     RingBuffer *rvBuffer = &(controller->rvBuffer);
     
@@ -45,7 +48,7 @@ void tr_poll(TrainController *controller) {
         int t_2 = rb_peak(swBuffer, 2);
         int t_3 = rb_peak(swBuffer, 3);
         
-        int scheduled_time =  t_0 + t_1 << 8 + t_2 << 16 + t_3 << 24;
+        int scheduled_time =  t_0 + (t_1 << 8) + (t_2 << 16) + (t_3 << 24);
 
         if (scheduled_time < time_ms) {
             rb_shrink(swBuffer);
@@ -63,7 +66,7 @@ void tr_poll(TrainController *controller) {
         t_2 = rb_peak(rvBuffer, 2);
         t_3 = rb_peak(rvBuffer, 3);
         
-        scheduled_time =  t_0 + t_1 << 8 + t_2 << 16 + t_3 << 24;
+        scheduled_time =  t_0 + (t_1 << 8) + (t_2 << 16) + (t_3 << 24);
 
         if (scheduled_time < time_ms) {
             rb_shrink(rvBuffer);

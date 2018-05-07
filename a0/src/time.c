@@ -4,11 +4,13 @@
 // We use slow clock speed at 2k Hz.
 #define CLOCK_SPEED 2000
 
-// We want a period to be 1 ms
-#define PERIOD_TIME_MS 1
+// We want a period to be 10 ms
+#define PERIOD_TIME_MS 10
 
 // Thus we want a period with 2 ticks
-#define PERIOD_TICK CLOCK_SPEED / (PERIOD_TIME_MS * 1000)
+#define PERIOD_TICK CLOCK_SPEED / 1000 * PERIOD_TIME_MS
+
+#define DISPLAY_UPDATE_TIME_MS 100
 
 void cl_init(Clock *clock) {
     // load starting value into load register for clock
@@ -17,7 +19,7 @@ void cl_init(Clock *clock) {
 
     // flip enable bit to start clock, set to periodic mode, use slower clock
     int *clock_control_addr = (int *) (TIMER3_BASE + CRTL_OFFSET);
-    *clock_control_addr = ENABLE_MASK | MODE_MASK & ~CLKSEL_MASK;
+    *clock_control_addr = (ENABLE_MASK | MODE_MASK) & ~CLKSEL_MASK;
 
     clock->value_addr = (int *) (TIMER3_BASE + VAL_OFFSET);
     clock->time_ms = 0;
@@ -30,7 +32,7 @@ void cl_poll(Clock *clock) {
     if (clock_value > clock->previous_value) {
         clock->time_ms ++;
 
-        if (clock->time_ms % 10 == 0) {
+        if (clock->time_ms % DISPLAY_UPDATE_TIME_MS == 0) {
             clock->time_changed = 1;
         }
     }

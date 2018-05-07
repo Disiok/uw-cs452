@@ -126,8 +126,8 @@ int tc_update_time(TerminalController *controller, long time_ms) {
  * Smart Terminal
  */
 
-void st_init(SmartTerminal *st, int id) {
-    bc_init(&(st->channel), id);
+void st_init(SmartTerminal *st) {
+    bc_init(&(st->channel), COM2);
     st->size = 0;
 }
 
@@ -135,7 +135,7 @@ void st_poll(SmartTerminal *st) {
     bc_poll(&(st->channel));
 }
 
-int st_process_terminal_input(SmartTerminal *st, TerminalController *controller, BufferedChannel *train_channel) {
+int st_process_terminal_input(SmartTerminal *st, TerminalController *terminal_controller, TrainController *train_controller) {
     BufferedChannel *channel =  &(st->channel);
     if (!rb_is_empty(&(channel->readBuffer))) {
         char ch = getc(channel);
@@ -150,11 +150,11 @@ int st_process_terminal_input(SmartTerminal *st, TerminalController *controller,
             st->size ++;
         } else if (ch == CHAR_ENTER) {
             st->commandBuffer[st->size] = '\0';
-            st_move_cursor(controller->st, 32, 10);
+            st_move_cursor(terminal_controller->st, 32, 10);
             st_clear_line_from_cursor(st);
 
-            tr_update_command(train_channel, st->commandBuffer);
-            int exit = tc_update_command(controller, st->commandBuffer);
+            tr_update_command(train_controller, st->commandBuffer);
+            int exit = tc_update_command(terminal_controller, st->commandBuffer);
 
             // NOTE(sdsuo): Wipe out the command buffer
             st->size = 0;

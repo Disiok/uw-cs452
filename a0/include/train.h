@@ -47,3 +47,7 @@ void tr_stop(TrainController *controller);
 int tr_tr(TrainController *controller, int tcain_number, int tcain_speed);
 int tr_rv(TrainController *controller, int tcain_number);
 int tr_sw(TrainController *controller, int switch_number, char switch_direction);
+
+// Delayed train set functions
+void tr_schedule_delayed_sw(TrainController *controller);
+void tr_schedule_delayed_rv(TrainController *controller, int train_number);

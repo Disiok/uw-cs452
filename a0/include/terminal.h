@@ -2,6 +2,7 @@
 #pragma once 
 
 #include <io.h>
+#include <train.h>
 #include <track_node.h>
 #include <time.h>
 
@@ -46,7 +47,7 @@ typedef struct {
  * This contain logics for:
  * 1. Location of user interface elements
  */
-typedef struct _TerminalController {
+typedef struct {
     SmartTerminal *st;
 } TerminalController;
 
@@ -57,9 +58,9 @@ void tc_render_static(TerminalController *controller, track_node *track);
 int tc_update_time(TerminalController *controller, long time_ms);
 int tc_update_sensor(TerminalController *controller);
 
-void st_init(SmartTerminal *st, int id);
+void st_init(SmartTerminal *st);
 void st_poll(SmartTerminal *st);
-int st_process_terminal_input(SmartTerminal *st, TerminalController *controller, BufferedChannel *train_channel);
+int st_process_terminal_input(SmartTerminal *st, TerminalController *terminal_controller, TrainController *train_controller);
 void st_save_cursor(SmartTerminal *st);
 void st_restore_cursor(SmartTerminal *st);
 void st_move_cursor(SmartTerminal *st, int vertical, int horizontal);

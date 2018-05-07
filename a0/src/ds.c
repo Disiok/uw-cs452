@@ -27,7 +27,7 @@ char rb_shrink(RingBuffer *ringBuffer) {
 
 
 char rb_peak(RingBuffer *ringBuffer, int ind) {
-    return ringBuffer->buffer[ringBuffer->head + ind];
+    return ringBuffer->buffer[(ringBuffer->head + ind) % RING_BUFFER_SIZE];
 }
 
 int rb_is_empty(RingBuffer *ringBuffer) {
