@@ -43,7 +43,7 @@ int main( int argc, char* argv[] ) {
         long start_time_ms = cl_get_time_ms(&clock);
 
         // Update clock, train channel, terminal channel
-        cl_poll(&clock);
+        cl_poll(&clock, &controller);
         tr_poll(&train_controller, &controller);
         st_poll(&st);
 

@@ -12,9 +12,11 @@ typedef struct {
 } Clock;
 
 
+#include <terminal.h>
+
 void cl_init(Clock *clock);
 
-void cl_poll(Clock *clock);
+void cl_poll(Clock *clock, TerminalController *controller);
 
 long cl_get_time_ms(Clock *clock);
 

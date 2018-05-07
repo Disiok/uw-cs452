@@ -27,7 +27,7 @@ void cl_init(Clock *clock) {
     clock->time_changed = 1;
 }
 
-void cl_poll(Clock *clock) {
+void cl_poll(Clock *clock, TerminalController *controller) {
     int clock_value = *(clock->value_addr);
     if (clock_value > clock->previous_value) {
         clock->time_ms ++;

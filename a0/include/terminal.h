@@ -1,9 +1,13 @@
 
 #pragma once 
 
+typedef struct SmartTerminal SmartTerminal;
+typedef struct TerminalController TerminalController;
+
 #include <io.h>
-#include <track_node.h>
+#include <train.h>
 #include <time.h>
+#include <track_node.h>
 
 /*
  * Smart Terminal: wrapper on gtk for moving cursors around
@@ -34,11 +38,11 @@
 
 #define COMMAND_BUFFER_SIZE 64
 
-typedef struct {
+struct SmartTerminal{
     BufferedChannel channel;
     char commandBuffer[COMMAND_BUFFER_SIZE];
     int size;
-} SmartTerminal;
+};
 
 /*
  * Terminal Controller: controller for displaying user interface
@@ -46,11 +50,9 @@ typedef struct {
  * This contain logics for:
  * 1. Location of user interface elements
  */
-typedef struct {
+struct TerminalController {
     SmartTerminal *st;
-} TerminalController;
-
-#include <train.h>
+};
 
 void tc_init(TerminalController *controller, SmartTerminal *st);
 int tc_process_time(TerminalController *controller, Clock *clock);

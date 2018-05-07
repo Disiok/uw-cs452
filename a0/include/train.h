@@ -1,7 +1,9 @@
 
 #pragma once
 
+typedef struct TrainController TrainController;
 
+#include <terminal.h>
 #include <time.h>
 #include <ds.h>
 #include <io.h>
@@ -41,15 +43,13 @@
  * 1. Issuing commands
  * 2. Scheduling delayed commands
  */
-typedef struct {
+struct TrainController {
     BufferedChannel channel;
     RingBuffer swBuffer;
     RingBuffer rvBuffer;
     Clock *clock;
     char trainSpeed[TRAIN_NUMBER_MAX + 1];
-} TrainController;
-
-#include <terminal.h>
+};
 
 void tr_init(TrainController *controller, Clock *clock);
 void tr_init_protocol(TrainController *controller);
