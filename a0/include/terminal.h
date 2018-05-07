@@ -59,7 +59,7 @@ int st_update_status(SmartTerminal *st, char *status);
 int st_update_history(SmartTerminal *st, char *history);
 int st_update_command(SmartTerminal *st, char *command);
 int st_update_time(SmartTerminal *st, int time_ms);
-int st_update_sensors(SmartTerminal *st, char *sensors);
+int st_update_sensors(SmartTerminal *st, RingBuffer *sensorBuffer, int sensorFlag);
 
 /*
  * Terminal Controller: controller for displaying user interface

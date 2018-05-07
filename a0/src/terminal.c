@@ -123,8 +123,8 @@ void st_render_static(SmartTerminal *st, track_node *track) {
     }
 
     // Sensors
-    st_move_cursor(st, 39, 50);
-    putstr(channel, "Sensor Updates");
+    st_move_cursor(st, 24, 50);
+    putstr(channel, "Sensor Updates: ");
 
     // Command status
     st_move_cursor(st, STATUS_ROW, START_COL);
@@ -137,7 +137,6 @@ void st_render_static(SmartTerminal *st, track_node *track) {
     // Command prompt
     st_move_cursor(st, PROMPT_ROW, START_COL);
     putstr(channel, ">");
-
 
     // Move to prompt
     st_move_cursor(st, PROMPT_ROW, DYNAMIC_COL);
@@ -210,20 +209,24 @@ int st_update_time(SmartTerminal *st, int time_ms) {
     return 0;
 }
 
-int st_update_sensors(SmartTerminal *st, char *sensors) {
+int st_update_sensors(SmartTerminal *st, RingBuffer *sensorBuffer, int sensorFlag) {
     st_save_cursor(st);
-    st_move_cursor(st, 40, 50);
+    st_move_cursor(st, 24, 67);
+    if (sensorFlag) {
+        putstr(&(st->channel), " On");
+    } else {
+        putstr(&(st->channel), "Off");
+    }
+    st_move_cursor(st, 25, 50);
 
     int i;
-    int j;
-    char state;
-    for (i = 0; i < 5; i ++) {
-        state = sensors[i];
+    char activated;
+    for (i = sensorBuffer->size - 1; i >= 0; i --) {
+        activated = rb_peak(sensorBuffer, i);
         
-        for (j = 0; j < 8; j ++) { 
-            putc(&(st->channel), ((state >> j) & 1) + '0');
-        }
-        st_move_cursor(st, 40 + i + 1, 50);
+        int display_i = sensorBuffer->size - 1 - i;
+        st_move_cursor(st, 25 + display_i % 10, 50 + display_i / 10 * 5);
+        printf(&(st->channel), "%d", activated); 
     }
 
     st_restore_cursor(st);

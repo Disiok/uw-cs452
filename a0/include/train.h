@@ -8,6 +8,8 @@ typedef struct TrainController TrainController;
 #include <ds.h>
 #include <io.h>
 
+#define TRAIN_COM_SPEED 2400
+
 // Train set
 #define TRAIN_GO 0x60
 #define TRAIN_STOP 0x61
@@ -29,7 +31,9 @@ typedef struct TrainController TrainController;
 #define TRAIN_SWITCH_CURVE 0x22
 
 // Sensors
+#define TRAIN_SENSOR_MAX 5
 #define TRAIN_SENSOR_BASE 0x80
+#define TRAIN_SENSOR_DISPLAY_MAX 20
 
 // Delays
 #define TRAIN_SW_DELAY 150
@@ -47,8 +51,10 @@ struct TrainController {
     BufferedChannel channel;
     RingBuffer swBuffer;
     RingBuffer rvBuffer;
+    RingBuffer sensorBuffer;
     Clock *clock;
     char trainSpeed[TRAIN_NUMBER_MAX + 1];
+    char sensorFlag;
 };
 
 void tr_init(TrainController *controller, Clock *clock);
@@ -58,6 +64,7 @@ void tr_poll(TrainController *controller, SmartTerminal *st);
 void tr_update_command(TrainController *controller, char *command);
 
 // Train set functions
+int tr_toggle_sensor(TrainController *controller);
 int tr_go(TrainController *controller);
 int tr_stop(TrainController *controller);
 int tr_set_speed(TrainController *controller, int tcain_number, int tcain_speed);

@@ -4,16 +4,27 @@
 #include <util.h>
 
 void tr_init(TrainController *controller, Clock *clock) {
+    controller->clock = clock;
     bc_init(&(controller->channel), COM1);
     rb_init(&(controller->rvBuffer));
     rb_init(&(controller->swBuffer));
-    controller->clock = clock;
+    rb_init(&(controller->sensorBuffer));
+
+    // Only display 20 most recent
+    rb_set_max_size(&(controller->sensorBuffer), TRAIN_SENSOR_DISPLAY_MAX);
+
+    // Enable sensor polling by default
+    controller->sensorFlag = 1;
 
     // Set up communication protocol
     tr_init_protocol(controller);
 
     // Initialize train speed
     tr_init_train_speed(controller);
+
+    if (controller->sensorFlag) {
+        tr_request_sensors(controller, 5);
+    }
 }
 
 /*
@@ -28,7 +39,7 @@ void tr_init(TrainController *controller, Clock *clock) {
 void tr_init_protocol(TrainController *controller) {
     BufferedChannel *channel = &(controller->channel);
 
-    setspeed(channel, 2400);
+    setspeed(channel, TRAIN_COM_SPEED);
     set2stopbits(channel);
     setnoparity(channel);
     set8wordsize(channel);
@@ -79,16 +90,34 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
             }
         }
 
-        // Poll sensors
         if (!rb_is_empty(&(channel->readBuffer))) {
-            char sensors[10];
             int i;
-            for (i = 0; i < 10; i ++) {
-                sensors[i] = rb_shrink(&(channel->readBuffer));
+            int j;
+            int k;
+            for (i = 0; i < TRAIN_SENSOR_MAX; i ++) {
+                // Every sensor group
+                for (j = 0; j < 2; j ++) {
+                    // Every byte
+                    char sensor_byte = rb_shrink(&(channel->readBuffer));
+                    for (k = 0; k < 8; k ++) { 
+                        // Every bit
+                        char sensor_bit = ((sensor_byte >> k) & 1);
+                        if (sensor_bit) {
+                            char sensor_id = i * 16 + j * 8 + k;
+                            rb_grow(&(controller->sensorBuffer), sensor_id);
+                        }
+                    }
+                }
+
             }
-            st_update_sensors(st, sensors);      
+
+            st_update_sensors(st, &(controller->sensorBuffer), controller->sensorFlag);      
+        } else {
+            // poll sensors
+            if (controller->sensorFlag) {
+                tr_request_sensors(controller, TRAIN_SENSOR_MAX);
+            }
         }
-        tr_request_sensors(controller, 5);
     }
 }
 
@@ -108,7 +137,14 @@ void tr_update_command(TrainController *controller, char *command) {
         tr_go(controller);
     } else if (strncmp(command, "stop", 4) == 0) {
         tr_stop(controller);
+    } else if (strncmp(command, "ss", 2) == 0) {
+        tr_toggle_sensor(controller); 
     }
+}
+
+int tr_toggle_sensor(TrainController *controller) {
+   controller->sensorFlag = 1 - controller->sensorFlag; 
+   return 0;
 }
 
 int tr_go(TrainController *controller) {
@@ -166,11 +202,12 @@ int tr_switch(TrainController *controller, int switch_number, char switch_direct
     if (switch_number > TRAIN_SWITCH_MAX || switch_number < TRAIN_SWITCH_MIN) {
         return 1; 
     }
+
     BufferedChannel *channel = &(controller->channel);
-    if (switch_direction == 's') {
+    if (switch_direction == 'S') {
         putc(channel, TRAIN_SWITCH_STRAIGHT); 
         putc(channel, (char) switch_number);
-    } else if (switch_direction == 'c') {
+    } else if (switch_direction == 'C') {
         putc(channel, TRAIN_SWITCH_CURVE); 
         putc(channel, (char) switch_number);
     } else {

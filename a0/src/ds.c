@@ -8,12 +8,24 @@ void rb_init(RingBuffer *ringBuffer) {
     ringBuffer->head = 0;
     ringBuffer->tail = 0;
     ringBuffer->size = 0;
+    ringBuffer->maxSize = RING_BUFFER_SIZE;
+    return;
+}
+
+void rb_set_max_size(RingBuffer *ringBuffer, int max_size) {
+    if (max_size <= RING_BUFFER_SIZE) {
+        ringBuffer->maxSize = max_size; 
+    }
     return;
 }
 
 void rb_grow(RingBuffer *ringBuffer, char ch) {
+    if (ringBuffer->size == ringBuffer->maxSize) {
+        rb_shrink(ringBuffer); 
+    }
+
     ringBuffer->buffer[ringBuffer->tail] = ch;
-    ringBuffer->tail = (ringBuffer->tail + 1) % RING_BUFFER_SIZE;
+    ringBuffer->tail = (ringBuffer->tail + 1) % ringBuffer->maxSize;
     ringBuffer->size ++;
     return;
 }
@@ -28,7 +40,7 @@ void rb_grow_int(RingBuffer *ringBuffer, int n) {
 
 char rb_shrink(RingBuffer *ringBuffer) {
     char ch = ringBuffer->buffer[ringBuffer->head];
-    ringBuffer->head = (ringBuffer->head + 1) % RING_BUFFER_SIZE;
+    ringBuffer->head = (ringBuffer->head + 1) % ringBuffer->maxSize;
     ringBuffer->size --;
     return ch;
 }
@@ -44,7 +56,7 @@ int  rb_shrink_int(RingBuffer *ringBuffer) {
 }
 
 char rb_peak(RingBuffer *ringBuffer, int ind) {
-    return ringBuffer->buffer[(ringBuffer->head + ind) % RING_BUFFER_SIZE];
+    return ringBuffer->buffer[(ringBuffer->head + ind) % ringBuffer->maxSize];
 }
 
 int rb_peak_int(RingBuffer *ringBuffer) {

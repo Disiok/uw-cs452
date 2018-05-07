@@ -8,9 +8,12 @@ typedef struct {
     int tail;
     int size;
     char buffer[RING_BUFFER_SIZE];
+    int maxSize;
 } RingBuffer;
 
 void rb_init(RingBuffer *channel);
+
+void rb_set_max_size(RingBuffer *ringBuffer, int max_size);
 
 void rb_grow(RingBuffer *channel, char ch);
 
