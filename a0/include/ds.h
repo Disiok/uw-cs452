@@ -14,9 +14,15 @@ void rb_init(RingBuffer *channel);
 
 void rb_grow(RingBuffer *channel, char ch);
 
+void rb_grow_int(RingBuffer *channel, int n);
+
 char rb_shrink(RingBuffer *channel);
 
+int rb_shrink_int(RingBuffer *channel);
+
 char rb_peak(RingBuffer *ringBuffer, int ind);
+
+int rb_peak_int(RingBuffer *ringBuffer);
 
 int rb_is_empty(RingBuffer *channel);
 

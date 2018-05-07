@@ -24,11 +24,11 @@ int main( int argc, char* argv[] ) {
     SmartTerminal st;
     st_init(&st);
 
-    // Train controller
+    // Train controller setup
     TrainController train_controller;
     tr_init(&train_controller, &clock);
 
-    // Terminal controller
+    // Terminal controller setup
     TerminalController controller;
     tc_init(&controller, &st);
 
@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ) {
 
         // Update clock, train channel, terminal channel
         cl_poll(&clock);
-        tr_poll(&train_controller);
+        tr_poll(&train_controller, &controller);
         st_poll(&st);
 
         // Handle time

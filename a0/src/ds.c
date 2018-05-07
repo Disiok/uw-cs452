@@ -18,6 +18,14 @@ void rb_grow(RingBuffer *ringBuffer, char ch) {
     return;
 }
 
+void rb_grow_int(RingBuffer *ringBuffer, int n) {
+    rb_grow(ringBuffer, (char) n & 0xFF);
+    rb_grow(ringBuffer, (char) (n>>8) & 0xFF);
+    rb_grow(ringBuffer, (char) (n>>16) & 0xFF);
+    rb_grow(ringBuffer, (char) (n>>24) & 0xFF);
+    return;
+} 
+
 char rb_shrink(RingBuffer *ringBuffer) {
     char ch = ringBuffer->buffer[ringBuffer->head];
     ringBuffer->head = (ringBuffer->head + 1) % RING_BUFFER_SIZE;
@@ -25,9 +33,28 @@ char rb_shrink(RingBuffer *ringBuffer) {
     return ch;
 }
 
+int  rb_shrink_int(RingBuffer *ringBuffer) {
+    int n_0 = rb_shrink(ringBuffer);
+    int n_1 = rb_shrink(ringBuffer);
+    int n_2 = rb_shrink(ringBuffer);
+    int n_3 = rb_shrink(ringBuffer);
+
+    int n =  n_0 + (n_1 << 8) + (n_2 << 16) + (n_3 << 24);
+    return n;
+}
 
 char rb_peak(RingBuffer *ringBuffer, int ind) {
     return ringBuffer->buffer[(ringBuffer->head + ind) % RING_BUFFER_SIZE];
+}
+
+int rb_peak_int(RingBuffer *ringBuffer) {
+    int n_0 = rb_peak(ringBuffer, 0);
+    int n_1 = rb_peak(ringBuffer, 1);
+    int n_2 = rb_peak(ringBuffer, 2);
+    int n_3 = rb_peak(ringBuffer, 3);
+
+    int n =  n_0 + (n_1 << 8) + (n_2 << 16) + (n_3 << 24);
+    return n;
 }
 
 int rb_is_empty(RingBuffer *ringBuffer) {

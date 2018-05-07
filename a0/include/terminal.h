@@ -2,7 +2,6 @@
 #pragma once 
 
 #include <io.h>
-#include <train.h>
 #include <track_node.h>
 #include <time.h>
 
@@ -50,6 +49,8 @@ typedef struct {
 typedef struct {
     SmartTerminal *st;
 } TerminalController;
+
+#include <train.h>
 
 void tc_init(TerminalController *controller, SmartTerminal *st);
 int tc_process_time(TerminalController *controller, Clock *clock);
