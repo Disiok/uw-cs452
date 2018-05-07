@@ -122,17 +122,21 @@ void st_render_static(SmartTerminal *st, track_node *track) {
         }
     }
 
+    // Sensors
+    st_move_cursor(st, 39, 50);
+    putstr(channel, "Sensor Updates");
+
     // Command status
     st_move_cursor(st, STATUS_ROW, START_COL);
-    printf(channel, "Status: ");
+    putstr(channel, "Status: ");
 
     // Command history
     st_move_cursor(st, HISTORY_ROW, START_COL);
-    printf(channel, "History: ");
+    putstr(channel, "History: ");
 
     // Command prompt
     st_move_cursor(st, PROMPT_ROW, START_COL);
-    printf(channel, ">");
+    putstr(channel, ">");
 
 
     // Move to prompt
@@ -195,5 +199,22 @@ int st_update_time(SmartTerminal *st, long time_ms) {
 }
 
 int st_update_sensors(SmartTerminal *st, char *sensors) {
+    st_save_cursor(st);
+    st_move_cursor(st, 40, 50);
+
+    int i;
+    int j;
+    char state;
+    for (i = 0; i < 5; i ++) {
+        state = sensors[i];
+        
+        for (j = 0; j < 8; j ++) { 
+            putc(&(st->channel), ((state >> j) & 1) + '0');
+        }
+        st_move_cursor(st, 40, 50 + i + 1);
+    }
+
+    st_restore_cursor(st);
+
     return 0;
 }

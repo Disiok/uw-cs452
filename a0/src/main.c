@@ -49,7 +49,7 @@ int main( int argc, char* argv[] ) {
         // Update terminal channel, and terminal display
         st_poll(&st);
 
-        // Handle command
+        // Handle command, update command display, and send to train set
         if (tc_poll(&controller, &st, &train_controller)) {
             break; 
         }
