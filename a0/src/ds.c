@@ -25,6 +25,11 @@ char rb_shrink(RingBuffer *ringBuffer) {
     return ch;
 }
 
+
+char rb_peak(RingBuffer *ringBuffer, int ind) {
+    return ringBuffer->buffer[ringBuffer->head + ind];
+}
+
 int rb_is_empty(RingBuffer *ringBuffer) {
     return ringBuffer->size == 0;
 

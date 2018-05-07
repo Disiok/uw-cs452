@@ -1,6 +1,9 @@
 
 #pragma once
 
+
+#include <time.h>
+#include <ds.h>
 #include <io.h>
 
 #define TRAIN_GO 0x60
@@ -13,16 +16,34 @@
 #define TRAIN_SWITCH_STRAIGHT 0x21
 #define TRAIN_SWITCH_CURVE 0x22
 
+#define TRAIN_SW_DELAY 150
+#define TRAIN_RV_DELAY 3000
 
-void tr_init_protocol(BufferedChannel *channel);
-void tr_update_command(BufferedChannel *channel, char *command);
 
-void tr_go(BufferedChannel *channel);
+/**
+ * Train Controller: controller for train set
+ *
+ * This contains logic for:
+ * 1. Issuing commands
+ * 2. Scheduling delayed commands
+ */
+typedef struct {
+    BufferedChannel channel;
+    RingBuffer swBuffer;
+    RingBuffer rvBuffer;
+    Clock *clock;
+} TrainController;
 
-void tr_stop(BufferedChannel *channel);
+void tr_init(TrainController *controller, Clock *clock);
+void tr_init_protocol(TrainController *controller);
 
-int tr_tr(BufferedChannel *channel, int train_number, int train_speed);
+void tr_poll(TrainController *controller);
 
-int tr_rv(BufferedChannel *channel, int train_number);
+void tr_update_command(TrainController *controller, char *command);
 
-int tr_sw(BufferedChannel *channel, int switch_number, char switch_direction);
+// Train set functions
+void tr_go(TrainController *controller);
+void tr_stop(TrainController *controller);
+int tr_tr(TrainController *controller, int tcain_number, int tcain_speed);
+int tr_rv(TrainController *controller, int tcain_number);
+int tr_sw(TrainController *controller, int switch_number, char switch_direction);
