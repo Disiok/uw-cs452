@@ -24,7 +24,7 @@ int tc_poll(TerminalController *terminal_controller, SmartTerminal *st, TrainCon
             terminal_controller->size ++;
         } else if (ch == CHAR_ENTER) {
             terminal_controller->commandBuffer[terminal_controller->size] = '\0';
-            st_move_cursor(st, 32, 10);
+            st_move_cursor(st, PROMPT_ROW, 10);
             st_clear_line_from_cursor(st);
 
             tr_update_command(train_controller, terminal_controller->commandBuffer);
@@ -99,13 +99,32 @@ void st_render_static(SmartTerminal *st, track_node *track) {
 
     int i;
     // Switches
+    char switch_exist[TRAIN_SWITCH_MAX];
+    for (i = 0; i < TRAIN_SWITCH_MAX; i++) {
+        switch_exist[i] = 0;
+    }
+    char *merge_names[TRAIN_SWITCH_MAX];
+    char *branch_names[TRAIN_SWITCH_MAX];
+
     st_move_cursor(st, SWITCHES_ROW_START - 1, SWITCHES_COL_START);
     putstr(channel, "Switches");
-    int switches = 0;
     for (i = 0; i < TRACK_MAX; i++) {
-        if (track[i].type == NODE_BRANCH || track[i].type == NODE_MERGE) {
-            st_move_cursor(st, SWITCHES_ROW_START + switches % 20, SWITCHES_COL_START + switches / 20 * 10);
-            printf(channel, "%s: %d", track[i].name, track[i].num);
+        if (track[i].type == NODE_BRANCH) {
+           switch_exist[track[i].num] = 1; 
+           branch_names[track[i].num] = track[i].name;
+        
+        } else if (track[i].type == NODE_MERGE) {
+           switch_exist[track[i].num] = 1; 
+           merge_names[track[i].num] = track[i].name;
+        }
+    }
+
+    int switches = 0;
+    for (i = 0; i < TRAIN_SWITCH_MAX; i ++) {
+        if (switch_exist[i] == 1) {
+            st_move_cursor(st, SWITCHES_ROW_START + switches % 15, SWITCHES_COL_START + switches / 15 * 20);
+            printf(channel, "[C] %d: %s %s ", i, merge_names[i], branch_names[i]); 
+
             switches ++;
         }
     }

@@ -3,7 +3,7 @@
 #include <train.h>
 #include <util.h>
 
-void tr_init(TrainController *controller, Clock *clock) {
+void tr_init(TrainController *controller, Clock *clock, track_node *track) {
     controller->clock = clock;
     bc_init(&(controller->channel), COM1);
     rb_init(&(controller->rvBuffer));
@@ -20,7 +20,10 @@ void tr_init(TrainController *controller, Clock *clock) {
     tr_init_protocol(controller);
 
     // Initialize train speed
-    tr_init_train_speed(controller);
+    tr_init_train_speed(controller, track_node);
+
+    // Initialize switch positions
+    tr_init_switch_straight(controller);
 
     if (controller->sensorFlag) {
         tr_request_sensors(controller, 5);
@@ -53,6 +56,10 @@ void tr_init_train_speed(TrainController *controller) {
     }
 
     return;
+}
+
+void tr_init_train_speed(TrainController *controller, track_node) {
+
 }
 
 void tr_poll(TrainController *controller, SmartTerminal *st) {
