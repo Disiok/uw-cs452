@@ -103,7 +103,11 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
                         // Every bit
                         char sensor_bit = ((sensor_byte >> k) & 1);
                         if (sensor_bit) {
-                            char sensor_id = i * 16 + j * 8 + k;
+                            // From 16 -> 9 -> 8 -> 1
+                            // char sensor_id = (i + 1) * 16 - (j + 1) * 8 + k + 1;
+
+                            // From 1 - > 8 -> 9 -> 16
+                            char sensor_id = i * 16 + (j + 1) * 8 - k - 1;
                             rb_grow(&(controller->sensorBuffer), sensor_id);
                         }
                     }

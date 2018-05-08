@@ -34,8 +34,8 @@ typedef struct TerminalController TerminalController;
 // Columns
 #define START_COL 0
 #define DYNAMIC_COL 10
-#define SWITCHES_COL_START 50
-#define SENSORS_COL_START 0
+#define SWITCHES_COL_START 0
+#define SENSORS_COL_START 50
 
 #define COMMAND_BUFFER_SIZE 64
 

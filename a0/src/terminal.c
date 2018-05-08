@@ -111,6 +111,7 @@ void st_render_static(SmartTerminal *st, track_node *track) {
     }
     
     // Sensors
+    /*
     st_move_cursor(st, SENSORS_ROW_START - 1, SENSORS_COL_START);
     putstr(channel, "Sensors");
     int sensors = 0;
@@ -121,9 +122,9 @@ void st_render_static(SmartTerminal *st, track_node *track) {
             sensors ++;
         }
     }
+    */
 
-    // Sensors
-    st_move_cursor(st, 24, 50);
+    st_move_cursor(st, SENSORS_ROW_START - 1, SENSORS_COL_START);
     putstr(channel, "Sensor Updates: ");
 
     // Command status
@@ -211,13 +212,13 @@ int st_update_time(SmartTerminal *st, int time_ms) {
 
 int st_update_sensors(SmartTerminal *st, RingBuffer *sensorBuffer, int sensorFlag) {
     st_save_cursor(st);
-    st_move_cursor(st, 24, 67);
+    st_move_cursor(st, SENSORS_ROW_START - 1, SENSORS_COL_START + 17);
     if (sensorFlag) {
         putstr(&(st->channel), " On");
     } else {
         putstr(&(st->channel), "Off");
     }
-    st_move_cursor(st, 25, 50);
+    st_move_cursor(st, SENSORS_ROW_START, SENSORS_COL_START);
 
     int i;
     char activated;
@@ -225,8 +226,11 @@ int st_update_sensors(SmartTerminal *st, RingBuffer *sensorBuffer, int sensorFla
         activated = rb_peak(sensorBuffer, i);
         
         int display_i = sensorBuffer->size - 1 - i;
-        st_move_cursor(st, 25 + display_i % 10, 50 + display_i / 10 * 5);
-        printf(&(st->channel), "%d", activated); 
+        st_move_cursor(st, SENSORS_ROW_START + display_i % 10, 50 + display_i / 10 * 5);
+        putstr(&(st->channel), "     ");
+        st_move_cursor(st, SENSORS_ROW_START + display_i % 10, 50 + display_i / 10 * 5);
+        putc(&(st->channel), ('A' + activated / 16)); 
+        printf(&(st->channel), "%d", activated % 16 + 1); 
     }
 
     st_restore_cursor(st);
