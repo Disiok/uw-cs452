@@ -7,7 +7,7 @@ typedef struct TerminalController TerminalController;
 #include <io.h>
 #include <train.h>
 #include <time.h>
-#include <track_node.h>
+#include <track.h>
 
 /*
  * Smart Terminal: wrapper on gtk for moving cursors around
@@ -32,9 +32,9 @@ typedef struct TerminalController TerminalController;
 #define SENSORS_ROW_START 4
 
 // Columns
-#define START_COL 0
+#define START_COL 1
 #define DYNAMIC_COL 10
-#define SWITCHES_COL_START 0
+#define SWITCHES_COL_START 1
 #define SENSORS_COL_START 50
 
 #define COMMAND_BUFFER_SIZE 64
@@ -54,12 +54,14 @@ void st_clear_line(SmartTerminal *st);
 void st_clear_screen(SmartTerminal *st);
 
 // Following functions for formatting and positioning
-void st_render_static(SmartTerminal *st, track_node *track);
+void st_render_static(SmartTerminal *st, Track *track);
 int st_update_status(SmartTerminal *st, char *status);
 int st_update_history(SmartTerminal *st, char *history);
 int st_update_command(SmartTerminal *st, char *command);
 int st_update_time(SmartTerminal *st, int time_ms);
 int st_update_sensors(SmartTerminal *st, RingBuffer *sensorBuffer, int sensorFlag);
+int st_update_switch(SmartTerminal *st, int switch_numer, char state, Track *track);
+int st_update_switch_all(SmartTerminal *st, char state, Track *track);
 
 /*
  * Terminal Controller: controller for displaying user interface

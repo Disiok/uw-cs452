@@ -5,6 +5,7 @@ typedef struct TrainController TrainController;
 
 #include <terminal.h>
 #include <time.h>
+#include <track.h>
 #include <ds.h>
 #include <io.h>
 
@@ -19,19 +20,12 @@ typedef struct TrainController TrainController;
 #define TRAIN_SPEED_MIN 0
 #define TRAIN_SPEED_REVERSE 15
 
-#define TRAIN_NUMBER_MAX 80
-#define TRAIN_NUMBER_MIN 1
-
 // Switchs
-#define TRAIN_SWITCH_MAX 255
-#define TRAIN_SWITCH_MIN 0
-
 #define TRAIN_SWITCH_OFF 0x20
 #define TRAIN_SWITCH_STRAIGHT 0x21
 #define TRAIN_SWITCH_CURVE 0x22
 
 // Sensors
-#define TRAIN_SENSOR_MAX 5
 #define TRAIN_SENSOR_BASE 0x80
 #define TRAIN_SENSOR_DISPLAY_MAX 20
 
@@ -55,13 +49,14 @@ struct TrainController {
     Clock *clock;
     char trainSpeed[TRAIN_NUMBER_MAX + 1];
     char sensorFlag;
+    Track *track;
 };
 
-void tr_init(TrainController *controller, Clock *clock);
+void tr_init(TrainController *controller, Clock *clock, Track *track);
 void tr_init_protocol(TrainController *controller);
 void tr_init_train_speed(TrainController *controller);
 void tr_poll(TrainController *controller, SmartTerminal *st);
-void tr_update_command(TrainController *controller, char *command);
+void tr_update_command(TrainController *controller, char *command, SmartTerminal *st);
 
 // Train set functions
 int tr_toggle_sensor(TrainController *controller);
@@ -70,7 +65,8 @@ int tr_stop(TrainController *controller);
 int tr_set_speed(TrainController *controller, int tcain_number, int tcain_speed);
 int tr_reverse(TrainController *controller, int train_number);
 int tr_request_sensors(TrainController *controller, int max);
-int tr_switch(TrainController *controller, int switch_number, char switch_direction);
+int tr_switch(TrainController *controller, int switch_number, char switch_direction, int delayed);
+int tr_switch_all(TrainController *controller, Track *track, char switch_direction);
 
 // Delayed train set functions
 int tr_schedule_delayed_switch(TrainController *controller);

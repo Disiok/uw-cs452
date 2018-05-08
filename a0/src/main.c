@@ -1,7 +1,7 @@
 #include <bwio.h>
 #include <time.h>
 #include <terminal.h>
-#include <track_data.h>
+#include <track.h>
 #include <io.h>
 #include <train.h>
 #include <ts7200.h>
@@ -13,8 +13,8 @@
 
 int main( int argc, char* argv[] ) {
     // Track
-    track_node track[TRACK_MAX];
-    init_tracka(track);
+    Track track;
+    ta_init(&track, 'a');
 
     // Clock setup
     Clock clock;
@@ -23,11 +23,11 @@ int main( int argc, char* argv[] ) {
     // Smart terminal setup
     SmartTerminal st;
     st_init(&st);
-    st_render_static(&st, track);
+    st_render_static(&st, &track);
 
     // Train controller setup
     TrainController train_controller;
-    tr_init(&train_controller, &clock);
+    tr_init(&train_controller, &clock, &track);
 
     // Terminal controller setup
     TerminalController controller;

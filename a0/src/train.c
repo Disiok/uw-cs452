@@ -3,12 +3,13 @@
 #include <train.h>
 #include <util.h>
 
-void tr_init(TrainController *controller, Clock *clock, track_node *track) {
+void tr_init(TrainController *controller, Clock *clock, Track *track) {
     controller->clock = clock;
     bc_init(&(controller->channel), COM1);
     rb_init(&(controller->rvBuffer));
     rb_init(&(controller->swBuffer));
     rb_init(&(controller->sensorBuffer));
+    controller->track = track;
 
     // Only display 20 most recent
     rb_set_max_size(&(controller->sensorBuffer), TRAIN_SENSOR_DISPLAY_MAX);
@@ -20,10 +21,10 @@ void tr_init(TrainController *controller, Clock *clock, track_node *track) {
     tr_init_protocol(controller);
 
     // Initialize train speed
-    tr_init_train_speed(controller, track_node);
+    tr_init_train_speed(controller);
 
     // Initialize switch positions
-    tr_init_switch_straight(controller);
+    tr_switch_all(controller, track, 'S');
 
     if (controller->sensorFlag) {
         tr_request_sensors(controller, 5);
@@ -56,10 +57,6 @@ void tr_init_train_speed(TrainController *controller) {
     }
 
     return;
-}
-
-void tr_init_train_speed(TrainController *controller, track_node) {
-
 }
 
 void tr_poll(TrainController *controller, SmartTerminal *st) {
@@ -97,6 +94,7 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
             }
         }
 
+        // Update sensor display
         if (!rb_is_empty(&(channel->readBuffer))) {
             int i;
             int j;
@@ -132,7 +130,7 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
     }
 }
 
-void tr_update_command(TrainController *controller, char *command) {
+void tr_update_command(TrainController *controller, char *command, SmartTerminal *st) {
     if (strncmp(command, "tr", 2) == 0) {
         int train_number = parse_int_arg(command, 0);
         int train_speed = parse_int_arg(command, 1);
@@ -140,10 +138,21 @@ void tr_update_command(TrainController *controller, char *command) {
     } else if (strncmp(command, "rv", 2) == 0) {
         int train_number = parse_int_arg(command, 0);
         tr_reverse(controller, train_number);
+    } else if (strncmp(command, "swa", 3) == 0) {
+        char switch_direction = parse_char_arg(command, 0);
+        int failed = tr_switch_all(controller, controller->track, switch_direction);
+
+        if (!failed) {
+            st_update_switch_all(st, switch_direction, controller->track);
+        }
     } else if (strncmp(command, "sw", 2) == 0) {
         int switch_number = parse_int_arg(command, 0);
         char switch_direction = parse_char_arg(command, 1);
-        tr_switch(controller, switch_number, switch_direction);
+        int failed = tr_switch(controller, switch_number, switch_direction, 1);
+
+        if (!failed) {
+            st_update_switch(st, switch_number, switch_direction, controller->track);
+        }
     } else if (strncmp(command, "go", 2) == 0) {
         tr_go(controller);
     } else if (strncmp(command, "stop", 4) == 0) {
@@ -209,7 +218,7 @@ int tr_request_sensors(TrainController *controller, int max) {
     return 0;
 }
 
-int tr_switch(TrainController *controller, int switch_number, char switch_direction) {
+int tr_switch(TrainController *controller, int switch_number, char switch_direction, int delayed) {
     if (switch_number > TRAIN_SWITCH_MAX || switch_number < TRAIN_SWITCH_MIN) {
         return 1; 
     }
@@ -225,8 +234,23 @@ int tr_switch(TrainController *controller, int switch_number, char switch_direct
         return 1;
     }
 
+    if (delayed) {
+        return tr_schedule_delayed_switch(controller);
+    } else {
+        return 0; 
+    }
+}
+
+int tr_switch_all(TrainController *controller, Track *track, char state) {
+    int i;
+    for (i = 0; i < TRAIN_SWITCH_MAX ; i ++) {
+        if (track->switch_exist[i] != -1) {
+            tr_switch(controller, i, state, 0);
+        }
+    }
     return tr_schedule_delayed_switch(controller);
 }
+
 
 int tr_schedule_delayed_switch(TrainController *controller) {
     int time_ms = cl_get_time_ms(controller->clock) + TRAIN_SW_DELAY;
