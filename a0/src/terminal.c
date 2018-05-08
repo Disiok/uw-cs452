@@ -100,7 +100,7 @@ void st_render_static(SmartTerminal *st, Track *track) {
     int i;
     // Switches
     st_move_cursor(st, SWITCHES_ROW_START - 1, SWITCHES_COL_START);
-    putstr(channel, "Switches");
+    putstr(channel, "Switches: ");
 
     for (i = 0; i < TRAIN_SWITCH_MAX; i ++) {
         if (track->switch_exist[i] != -1) {

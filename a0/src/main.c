@@ -35,10 +35,11 @@ int main( int argc, char* argv[] ) {
 
     // Main polling loop
     int iter = 0;
-    int loop_time_ms = 0;
+    int sum_loop_time_ms = 0;
+    int max_loop_time_ms = 0;
 
     FOREVER {
-        long start_time_ms = cl_get_time_ms(&clock);
+        int start_time_ms = cl_get_time_ms(&clock);
 
         // Update clock, and clock display
         cl_poll(&clock, &st);
@@ -54,14 +55,26 @@ int main( int argc, char* argv[] ) {
             break; 
         }
         
-        /*
-        long end_time_ms = cl_get_time_ms(&clock);
-        loop_time_ms += end_time_ms - start_time_ms;
-        if (iter % 100 == 0) {
-            printf(&(st.channel), "%d ms to complete 100 loops.\r\n",  loop_time_ms);
-            loop_time_ms = 0;
+        int end_time_ms = cl_get_time_ms(&clock);
+        int loop_time_ms = end_time_ms - start_time_ms;
+
+        // Update loop times
+        if (loop_time_ms > max_loop_time_ms) {
+            max_loop_time_ms = loop_time_ms; 
         }
-        */
+        sum_loop_time_ms += end_time_ms - start_time_ms;
+
+        if (iter % 1000 == 0) {
+            st_save_cursor(&st);
+            st_move_cursor(&st, 1, 50);
+            printf(&(st.channel), "Mean: %d us",  sum_loop_time_ms);
+            st_move_cursor(&st, 2, 50);
+            printf(&(st.channel), "Max: %d ms",  max_loop_time_ms);
+            st_restore_cursor(&st);
+
+            sum_loop_time_ms = 0;
+            max_loop_time_ms = 0;
+        }
         
         iter ++;
     }

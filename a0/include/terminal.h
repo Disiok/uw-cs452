@@ -25,11 +25,11 @@ typedef struct TerminalController TerminalController;
 #define CHAR_QUIT 'q'
 
 // Rows
-#define STATUS_ROW 20
-#define HISTORY_ROW 21
-#define PROMPT_ROW 22
-#define SWITCHES_ROW_START 4
-#define SENSORS_ROW_START 4
+#define STATUS_ROW 22
+#define HISTORY_ROW 23
+#define PROMPT_ROW 25
+#define SWITCHES_ROW_START 5
+#define SENSORS_ROW_START 5
 
 // Columns
 #define START_COL 1
