@@ -71,7 +71,7 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
 
         // Check switch buffer
         RingBuffer *swBuffer = &(controller->swBuffer);
-        if (!rb_is_empty(swBuffer)) {
+        while (!rb_is_empty(swBuffer)) {
             int sw_scheduled_time = rb_peak_int(swBuffer);
 
             if (sw_scheduled_time < time_ms) {
@@ -79,21 +79,23 @@ void tr_poll(TrainController *controller, SmartTerminal *st) {
                 rb_shrink_int(swBuffer);
                 char command = rb_shrink(swBuffer);
                 putc(channel, command);
+            } else {
+                break;
             }
         }
 
         // Check reverse buffer
         RingBuffer *rvBuffer = &(controller->rvBuffer);
-        if (!rb_is_empty(rvBuffer)) {
+        while (!rb_is_empty(rvBuffer)) {
             int rv_scheduled_time = rb_peak_int(rvBuffer);
-            // bwprintf(COM2, "Waiting time: %d", rv_scheduled_time - time_ms);
 
             if (rv_scheduled_time < time_ms) {
                 st_update_status(st, "Sending delayed reverse");
                 rb_shrink_int(rvBuffer);
                 char command = rb_shrink(rvBuffer);
-                // bwprintf(COM2, "[Char is %d]", command);
                 putc(channel, command);
+            } else {
+                break;
             }
         }
 
