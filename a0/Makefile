@@ -23,14 +23,18 @@ SOURCES := $(shell find src -type f -name *.c)
 OBJECTS := $(patsubst src/%,build/%,$(SOURCES:.c=.o))
 ASMS := $(patsubst src/%,build/%,$(SOURCES:.c=.s))
 
+dir_guard=@mkdir -p $(@D)
 
 $(TARGET): $(OBJECTS)
+	$(dir_guard)
 	$(LD) $(LDFLAGS) $^ -o $@ $(LIB)
 
 build/%.o: build/%.s
+	$(dir_guard)
 	$(AS) $(ASFLAGS) $< -o $@ 
 
 build/%.s: src/%.c
+	$(dir_guard)
 	$(XCC) -S $(CFLAGS) $< -o $@
 
 clean:
