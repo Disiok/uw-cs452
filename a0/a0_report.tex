@@ -115,14 +115,14 @@ The program is driven by a main polling loop, which does the following:
 
 \subsection{Implementation Details}
 \subsubsection{Time Keeping}
-The 32-bit timer is used for time keeping. More specifically, we use the lower clock speed at 2kHz, and set the mode to periodic. At this clock speed, we can track time at the granularity of 0.5 ms, which is sufficient for our needs. The initial load value is set to 20 for a timer period of 10 ms (i.e. every underflow/reset corresponds to one period of 10 ms).\\
+The 32-bit timer is used for time keeping. More specifically, we use the lower clock speed at 2kHz, and set the mode to periodic. At this clock speed, we can track time at the granularity of 0.5 ms, which is sufficient for our needs. The initial load value is set to 200 for a timer period of 100 ms (i.e. every underflow/reset corresponds to one period of 10 ms).\\
 
 \noindent
 \textbf{Response to Question 1:} How do you know that your clock does not miss updates or lose
 time?) \\
 
 \noindent
-This implies that as long as the polling loop runs within 10 ms, we will not lose any periodic resets. Empirically, we observe max polling loop time to be well below this threshold.
+This implies that as long as the polling loop runs within 100 ms, we will not lose any periodic resets. Empirically, we observe max polling loop time to be well below this threshold.
 
 \subsubsection{Ring Buffer}
 Ring buffers are the only non-primitive data structures used in the program. They are used extensively for decoupling producers and consumers of messages. Here, ring buffers are implemented with stack allocated static arrays, with pointers to both head (i.e. index of first byte) and tail (i.e. index of last byte + 1). They operate first in first out (FIFO). They are currently configured to silently overwrite the oldest bytes when the max size is reached.
