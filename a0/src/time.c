@@ -7,7 +7,7 @@
 // We want a period to be 10 ms
 #define PERIOD_TIME_MS 10
 
-// Thus we want a period with 2 ticks
+// Thus we want a period with 20 ticks
 #define PERIOD_TICK CLOCK_SPEED / 1000 * PERIOD_TIME_MS
 
 #define DISPLAY_UPDATE_TIME_MS 100
@@ -45,7 +45,7 @@ void cl_poll(Clock *clock, SmartTerminal *st) {
 
 int cl_get_time_ms(Clock *clock) {
     clock->time_changed = 0;
-    return clock->time_ms;
+    return clock->time_ms + (10 - *(clock->value_addr) / 2);
 }
 
 int cl_time_changed(Clock *clock) {
