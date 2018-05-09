@@ -20,6 +20,9 @@ void tr_init(TrainController *controller, Clock *clock, Track *track) {
     // Set up communication protocol
     tr_init_protocol(controller);
 
+    // Start the train track
+    tr_go(controller);
+
     // Initialize train speed
     tr_init_train_speed(controller);
 
