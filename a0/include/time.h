@@ -6,6 +6,7 @@
 
 typedef struct {
     int time_ms;
+    int base_time_ms;
     int *value_addr;
     int previous_value;
     int time_changed;

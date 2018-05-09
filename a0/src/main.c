@@ -55,6 +55,8 @@ int main( int argc, char* argv[] ) {
             break; 
         }
         
+        // Update clock, and clock display
+        cl_poll(&clock, &st);
         int end_time_ms = cl_get_time_ms(&clock);
         int loop_time_ms = end_time_ms - start_time_ms;
 
@@ -62,7 +64,7 @@ int main( int argc, char* argv[] ) {
         if (loop_time_ms > max_loop_time_ms) {
             max_loop_time_ms = loop_time_ms; 
         }
-        sum_loop_time_ms += end_time_ms - start_time_ms;
+        sum_loop_time_ms += loop_time_ms; 
 
         if (iter % 1000 == 0) {
             st_save_cursor(&st);

@@ -4,10 +4,10 @@
 // We use slow clock speed at 2k Hz.
 #define CLOCK_SPEED 2000
 
-// We want a period to be 10 ms
-#define PERIOD_TIME_MS 10
+// We want a period to be 100 ms
+#define PERIOD_TIME_MS 100
 
-// Thus we want a period with 2 ticks
+// Thus we want a period with 20 ticks
 #define PERIOD_TICK CLOCK_SPEED / 1000 * PERIOD_TIME_MS
 
 #define DISPLAY_UPDATE_TIME_MS 100
@@ -23,6 +23,7 @@ void cl_init(Clock *clock) {
 
     clock->value_addr = (int *) (TIMER3_BASE + VAL_OFFSET);
     clock->time_ms = 0;
+    clock->base_time_ms = 0;
     clock->previous_value = PERIOD_TICK;
     clock->time_changed = 1;
 }
@@ -30,12 +31,13 @@ void cl_init(Clock *clock) {
 void cl_poll(Clock *clock, SmartTerminal *st) {
     int clock_value = *(clock->value_addr);
     if (clock_value > clock->previous_value) {
-        clock->time_ms += PERIOD_TIME_MS;
+        clock->base_time_ms += PERIOD_TIME_MS;
 
-        if (clock->time_ms % DISPLAY_UPDATE_TIME_MS == 0) {
+        if (clock->base_time_ms % DISPLAY_UPDATE_TIME_MS == 0) {
             clock->time_changed = 1;
         }
     }
+    clock->time_ms = clock->base_time_ms + (PERIOD_TIME_MS - clock_value / 2);
     clock->previous_value = clock_value;
 
     if (clock->time_changed) {
